@@ -1,4 +1,2 @@
-# MetaTrader 4 -- ZeroMQ Server
-Turns MetaTrader 4 into a remotely-accessible trading server.
-
-
+# MetaTrader 4 -- ZeroMQ bridge
+Provides a high-level trading interface to MetaTrader 4 via ZeroMQ.
