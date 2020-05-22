@@ -943,7 +943,7 @@ void Do_OrderDelete(CJAVal& req) {
                 if (OrderType() == OP_BUY || OrderType() == OP_SELL) {
                     // attempt to close at market price
                     req["lots"] = OrderLots();
-                    req["price"] = DefaultClosePrice(OrderType(), OrderSymbol());
+                    req["price"] = DefaultClosePrice(OrderSymbol(), OrderType());
                     req["slippage"] = DefaultSlippage(OrderSymbol());
                     Do_OrderClose(req);
                     return;
