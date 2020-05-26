@@ -1,0 +1,7 @@
+*.mqh eol=crlf
+*.mq4 eol=crlf
+*.bat eol=crlf
+
+*.sh eol=lf
+
+*.dll binary
