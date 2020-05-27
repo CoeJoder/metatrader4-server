@@ -1,7 +1,12 @@
+# crlf: Windows files
 *.mqh eol=crlf
 *.mq4 eol=crlf
 *.bat eol=crlf
 
+# lf: Linux shell scripts and git dotfiles
 *.sh eol=lf
+.gitattributes eol=lf
+.gitmodules eol=lf
 
+# binaries
 *.dll binary
