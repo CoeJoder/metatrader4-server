@@ -20,7 +20,7 @@ Below is a description of my development environment.
  - create a copy of [zeromq_bridge_startup.template.ini](metatrader4/config/zeromq_bridge_startup.template.ini) 
  (in that same folder) and rename it to `zeromq_bridge_startup.ini`
    - edit the file and set the `Login`, `Password`, `Server` values pertaining to your demo account
- - on your dev workstation, edit [remote_deploy.sh](remote_deploy.sh) and configure the variables near the top of the script
+ - edit [remote_deploy.sh](remote_deploy.sh) and configure the variables near the top of the script
    - do the same with [restart_mt4.bat](metatrader4/restart_mt4.bat) 
 
 During development cycles, run [remote_deploy.sh](remote_deploy.sh) to deploy the latest source, then restart 
