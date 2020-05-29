@@ -24,5 +24,5 @@ Below is a description of my development environment.
    - do the same with [restart_mt4.bat](metatrader4/restart_mt4.bat) 
 
 During development cycles, run [remote_deploy.sh](remote_deploy.sh) to deploy the latest source, then restart 
-MetaTrader 4 with by running [restart_mt4.bat](metatrader4/restart_mt4.bat) on the target machine.
+MetaTrader 4 with by running [restart_mt4.bat](metatrader4/restart_mt4.bat) on the server.
 Read the headers comments of these scripts for a full description of their behaviors.
