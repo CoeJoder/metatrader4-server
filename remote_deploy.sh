@@ -39,9 +39,7 @@ ssh -Nf "$SSH_ENDPOINT"
 # Windows paths used by WSL must be converted into Linux format
 WSL_MT4_PROFILE="$(ssh "$SSH_ENDPOINT" "echo \$(wslpath '$MT4_PROFILE')")"
 WSL_MT4_HOME="$(ssh "$SSH_ENDPOINT" "echo \$(wslpath '$MT4_HOME')")"
-WSL_DESTINATION_BRIDGE_FULLPATH="$WSL_MT4_PROFILE/MQL4/Experts/$EA_FILENAME"
 SCRIPT_DIR="$(dirname "$(realpath -s "$0")")"
-WIN_DESTINATION_EA_FULLPATH="$MT4_PROFILE\\MQL4\\Experts\\$EA_FILENAME"
 WIN_COMPILER_LOG="$MT4_PROFILE\\logs\\compiler.log"
 WSL_COMPILER_LOG="$(ssh "$SSH_ENDPOINT" "echo \$(wslpath '$WIN_COMPILER_LOG')")"
 
@@ -51,10 +49,10 @@ if ssh "$SSH_ENDPOINT" "[ ! -d \"$WSL_MT4_PROFILE\" ]"; then
 fi
 
 # the EA is always copied over, but everything else is rsync'd in update mode.
-rsync -avhu --exclude "README.md" "$SCRIPT_DIR/json/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Include/json/\""
 rsync -avhu "$SCRIPT_DIR/mql-zmq/Include/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Include/\""
 rsync -avhu "$SCRIPT_DIR/mql-zmq/Library/MT4/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Libraries/\""
-rsync -avh "$SCRIPT_DIR/$EA_FILENAME" "$SSH_ENDPOINT:\"$WSL_DESTINATION_BRIDGE_FULLPATH\""
+rsync -avhu --exclude "MQL4/Include/json/README.md" --exclude "MQL/Experts/$EA_FILENAME" --exclude "config/zeromq_bridge_startup.template.ini" "$SCRIPT_DIR/metatrader4/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/\""
+rsync -avh "$SCRIPT_DIR/metatrader4/MQL4/Experts/$EA_FILENAME" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Experts/$EA_FILENAME\""
 
 # compile the bridge if a path to the compiler was provided
 if [ -n "$MT4_HOME" ]; then
@@ -68,7 +66,7 @@ if [ -n "$MT4_HOME" ]; then
   if ssh "$SSH_ENDPOINT" "
     rm \"$WSL_COMPILER_LOG\" &> /dev/null
     cd \"$WSL_MT4_HOME\"
-    ./metaeditor.exe /log:\"$WIN_COMPILER_LOG\" /compile:\"$WIN_DESTINATION_EA_FULLPATH\"
+    ./metaeditor.exe /log:\"$WIN_COMPILER_LOG\" /compile:\"$MT4_PROFILE\\MQL4\\Experts\\$EA_FILENAME\"
     [ ! -f \"$WSL_COMPILER_LOG\" ]"; then
     echo "[ERROR] Compiler log not found."
     closeAndExit 1
