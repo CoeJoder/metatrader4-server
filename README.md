@@ -19,7 +19,7 @@ This project contains a number of configuration files and scripts to aid in the 
    - configure password-less login using an SSH key
    - enable SSH master sessions on your dev workstation 
  - create a copy of [zeromq_bridge_startup.template.ini](metatrader4/config/zeromq_bridge_startup.template.ini), in that same folder, and rename it to `zeromq_bridge_startup.ini`
- - edit `zeromq_bridge_startup.ini` and set `Login`, `Password`, and `Server` values pertaining to the demo account
+ - edit `zeromq_bridge_startup.ini` and set `Login`, `Password`, and `Server` values pertaining to your demo account
  - edit [remote_deploy.sh](remote_deploy.sh) and configure the variables near the top of the script
  - edit [restart_mt4.bat](metatrader4/restart_mt4.bat) and configure the variables near the top of the script
 
