@@ -48,11 +48,9 @@ if ssh "$SSH_ENDPOINT" "[ ! -d \"$WSL_MT4_PROFILE\" ]"; then
   closeAndExit 1
 fi
 
-# the EA is always copied over, but everything else is rsync'd in update mode.
-rsync -avhu "$SCRIPT_DIR/mql-zmq/Include/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Include/\""
-rsync -avhu "$SCRIPT_DIR/mql-zmq/Library/MT4/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Libraries/\""
-rsync -avhu --exclude "MQL4/Include/json/README.md" --exclude "MQL/Experts/$EA_FILENAME" --exclude "config/zeromq_bridge_startup.template.ini" "$SCRIPT_DIR/metatrader4/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/\""
-rsync -avh "$SCRIPT_DIR/metatrader4/MQL4/Experts/$EA_FILENAME" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Experts/$EA_FILENAME\""
+rsync -avh "$SCRIPT_DIR/mql-zmq/Include/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Include/\""
+rsync -avh "$SCRIPT_DIR/mql-zmq/Library/MT4/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Libraries/\""
+rsync -avh --exclude "MQL4/Include/json/README.md" --exclude "config/zeromq_bridge_startup.template.ini" "$SCRIPT_DIR/metatrader4/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/\""
 
 # compile the bridge if a path to the compiler was provided
 if [ -n "$MT4_HOME" ]; then

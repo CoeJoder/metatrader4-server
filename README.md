@@ -25,4 +25,4 @@ This project contains a number of configuration files and scripts to aid in the 
 
 To deploy the latest code, run [remote_deploy.sh](remote_deploy.sh) on the dev workstation.
 This will copy dependencies and the EA source code into the server's MT4 profile directory, and compile the EA.
-To apply the changes, restart MetaTrader 4 by running [restart_mt4.bat](metatrader4/restart_mt4.bat) in the MT 4 profile directory.
+To apply the changes, restart MetaTrader 4 by running [restart_mt4.bat](metatrader4/restart_mt4.bat) in the MT4 profile directory.
