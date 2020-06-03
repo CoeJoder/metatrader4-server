@@ -346,9 +346,25 @@ void Get_AccountInfo() {
 }
 
 void Get_AccountInfoInteger(CJAVal& req) {
-    int propertyId = (int)req["property_id"].ToInt();
-    sendResponse(AccountInfoInteger(propertyId));
-    return;
+    // use either property's name or id, giving priority to name
+    if (!IsNullOrMissing(req, "property_name")) {
+        string propertyName = req["property_name"].ToStr();
+        ENUM_ACCOUNT_INFO_INTEGER action = (ENUM_ACCOUNT_INFO_INTEGER)-1;
+        action = StringToEnum(propertyName, action);
+        if (action == -1) {
+            sendError(StringFormat("Unrecognized account integer property: %s", propertyName));
+            return;
+        }
+        else {
+            sendResponse(AccountInfoInteger(action));
+            return;
+        }
+    }
+    else {
+        int propertyId = (int)req["property_id"].ToInt();
+        sendResponse(AccountInfoInteger(propertyId));
+        return;
+    }
 }
 
 void Get_AccountInfoDouble(CJAVal& req) {
