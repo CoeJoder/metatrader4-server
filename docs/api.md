@@ -5,8 +5,7 @@ The transport format for requests and responses is JSON.
 
 Request objects contain an `action` string property, with any params as additional properties.
 
-Response objects will contain a `data` property with the action's return value.
-If the action completed with caveats, the `warning` or `warnings` property will also be set.
+If the action completed with caveats, the response object will contain a `warning` or `warnings` property.
 If the action failed, the `error` or `errors` property alone will be set.
 
 ## Actions
@@ -14,7 +13,7 @@ If the action failed, the `error` or `errors` property alone will be set.
 ### User Account
 
 - #### GET_ACCOUNT_INFO
-  Get static information about the logged-in account.
+  Get static information about the account.
   
   #### Example
   ```json
@@ -30,6 +29,24 @@ If the action failed, the `error` or `errors` property alone will be set.
     "server":   "Acme-Server3",
     "currency": "USD",
     "company":  "Acme, Ltd."
+  }
+  ```
+
+- #### GET_ACCOUNT_INFO_INTEGER
+  Gets an integer property of the account (see [AccountInfoInteger](https://docs.mql4.com/account/accountinfointeger)).
+  The `property_name` must be from [ENUM_ACCOUNT_INFO_INTEGER](https://docs.mql4.com/constants/environment_state/accountinformation#enum_account_info_integer).
+  
+  #### Example
+  ```json
+  {
+    "action": "GET_ACCOUNT_INFO_INTEGER",
+    "property_name": "ACCOUNT_LIMIT_ORDERS"
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "data": 1500
   }
   ```
 
