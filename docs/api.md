@@ -33,7 +33,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   ```
 
 - #### GET_ACCOUNT_INFO_INTEGER
-  Gets an integer property of the account (see [AccountInfoInteger](https://docs.mql4.com/account/accountinfointeger)).
+  Get an integer property of the account (see [AccountInfoInteger](https://docs.mql4.com/account/accountinfointeger)).
   The `property_name` must be from [ENUM_ACCOUNT_INFO_INTEGER](https://docs.mql4.com/constants/environment_state/accountinformation#enum_account_info_integer).
   
   #### Example
@@ -46,8 +46,25 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": 1500
+    "data": 1500.0
   }
   ```
 
+- #### GET_ACCOUNT_INFO_DOUBLE
+  Get an double property of the account (see [AccountInfoInteger](https://docs.mql4.com/account/accountinfodouble)).
+  The `property_name` must be from [ENUM_ACCOUNT_INFO_DOUBLE](https://docs.mql4.com/constants/environment_state/accountinformation#enum_account_info_double).
+  
+  #### Example
+  ```json
+  {
+    "action": "GET_ACCOUNT_INFO_DOUBLE",
+    "property_name": "ACCOUNT_BALANCE"
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "data": 5000.0
+  }
+  ```
 ==TODO more documentation==
