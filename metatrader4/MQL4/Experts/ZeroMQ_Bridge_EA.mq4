@@ -368,9 +368,24 @@ void Get_AccountInfoInteger(CJAVal& req) {
 }
 
 void Get_AccountInfoDouble(CJAVal& req) {
-    int propertyId = (int)req["property_id"].ToInt();
-    sendResponse(AccountInfoDouble(propertyId));
-    return;
+    if (!IsNullOrMissing(req, "property_name")) {
+        string propertyName = req["property_name"].ToStr();
+        ENUM_ACCOUNT_INFO_DOUBLE action = (ENUM_ACCOUNT_INFO_DOUBLE)-1;
+        action = StringToEnum(propertyName, action);
+        if (action == -1) {
+            sendError(StringFormat("Unrecognized account double property: %s", propertyName));
+            return;
+        }
+        else {
+            sendResponse(AccountInfoDouble(action));
+            return;
+        }
+    }
+    else {
+        int propertyId = (int)req["property_id"].ToInt();
+        sendResponse(AccountInfoDouble(propertyId));
+        return;
+    }
 }
 
 void Get_SymbolInfo(CJAVal& req) {
