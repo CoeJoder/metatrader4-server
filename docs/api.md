@@ -51,7 +51,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   ```
 
 - #### GET_ACCOUNT_INFO_DOUBLE
-  Get a double property of the account (see [AccountInfoInteger](https://docs.mql4.com/account/accountinfodouble)).
+  Get a double property of the account (see [AccountInfoDouble](https://docs.mql4.com/account/accountinfodouble)).
   The `property_name` must be from [ENUM_ACCOUNT_INFO_DOUBLE](https://docs.mql4.com/constants/environment_state/accountinformation#enum_account_info_double).
   
   #### Example
