@@ -389,6 +389,10 @@ void Get_AccountInfoDouble(CJAVal& req) {
 }
 
 void Get_SymbolInfo(CJAVal& req) {
+    if (IsNullOrMissing(req, "symbol")) {
+        sendError("Missing \"symbol\" param.");
+        return;
+    }
     string symbol = req["symbol"].ToStr();
 
     if (!SymbolExists(symbol)) {
