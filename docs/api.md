@@ -118,4 +118,25 @@ If the action failed, the `error` or `errors` property alone will be set.
     "data": 1.13006
   }
   ```
+
+- #### GET_SYMBOL_TICK
+  Get the current prices of the given symbol (see [SymbolInfoTick](https://docs.mql4.com/marketinformation/symbolinfotick)).
+  
+  ##### Example
+  ```json
+  {
+    "action": "GET_SYMBOL_TICK",
+    "symbol": "EURUSD"
+  }
+  ```
+  ##### Response
+  ```json
+  {
+    "ask": 1.13346,
+    "bid": 1.13338,
+    "last": 0.0,
+    "time": 1591744136,
+    "volume": 0
+  }
+  ```
 ==TODO more documentation==
