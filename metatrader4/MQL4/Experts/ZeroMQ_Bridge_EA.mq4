@@ -230,7 +230,7 @@ void OnTimer() {
                 Run_Indicator(req);
                 break;
             default: {
-                string errorStr = StringFormat("Unrecognized request action (%d).", (int) action);
+                string errorStr = StringFormat("Unrecognized requested action (%s).", actionStr);
                 Print(errorStr);
                 sendError(errorStr);
                 break;
@@ -301,6 +301,18 @@ void sendError(string val) {
     _serializeAndPushResponse(resp);
 }
 
+void sendErrorMissingParam(string paramName) {
+    sendError(StringFormat("Missing \"%s\" param.", paramName));
+}
+
+bool assertParamExists(CJAVal& req, string paramName) {
+    if (IsNullOrMissing(req, paramName)) {
+        sendErrorMissingParam(paramName);
+        return false;
+    }
+    return true;
+}
+
 // selects an order and sends it to the client, or sends an error code if not found
 void sendOrder(int ticket, string warning=NULL) {
     if (OrderSelect(ticket, SELECT_BY_TICKET, MODE_TRADES)) {
@@ -360,14 +372,19 @@ void Get_AccountInfoInteger(CJAVal& req) {
             return;
         }
     }
-    else {
+    else if (!IsNullOrMissing(req, "property_id")) {
         int propertyId = (int)req["property_id"].ToInt();
         sendResponse(AccountInfoInteger(propertyId));
+        return;
+    }
+    else {
+        sendError("Must include either \"property_name\" or \"property_id\" param.");
         return;
     }
 }
 
 void Get_AccountInfoDouble(CJAVal& req) {
+    // use either property's name or id, giving priority to name
     if (!IsNullOrMissing(req, "property_name")) {
         string propertyName = req["property_name"].ToStr();
         ENUM_ACCOUNT_INFO_DOUBLE action = (ENUM_ACCOUNT_INFO_DOUBLE)-1;
@@ -381,16 +398,19 @@ void Get_AccountInfoDouble(CJAVal& req) {
             return;
         }
     }
-    else {
+    else if (!IsNullOrMissing(req, "property_id")) {
         int propertyId = (int)req["property_id"].ToInt();
         sendResponse(AccountInfoDouble(propertyId));
+        return;
+    }
+    else {
+        sendError("Must include either \"property_name\" or \"property_id\" param.");
         return;
     }
 }
 
 void Get_SymbolInfo(CJAVal& req) {
-    if (IsNullOrMissing(req, "symbol")) {
-        sendError("Missing \"symbol\" param.");
+    if (!assertParamExists(req, "symbol")) {
         return;
     }
     string symbol = req["symbol"].ToStr();
@@ -438,6 +458,9 @@ void Get_SymbolInfo(CJAVal& req) {
 }
 
 void Get_SymbolMarketInfo(CJAVal& req) {
+    if (!assertParamExists(req, "symbol") || !assertParamExists(req, "property")) {
+        return;
+    }
     string symbol = req["symbol"].ToStr();
     string strProperty = req["property"].ToStr();
 
