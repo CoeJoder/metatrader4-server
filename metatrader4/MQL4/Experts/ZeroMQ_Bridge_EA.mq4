@@ -482,6 +482,9 @@ void Get_SymbolMarketInfo(CJAVal& req) {
 }
 
 void Get_SymbolTick(CJAVal& req) {
+    if (!assertParamExists(req, "symbol")) {
+        return;
+    }
     string symbol = req["symbol"].ToStr();
 
     if (!SymbolExists(symbol)) {
