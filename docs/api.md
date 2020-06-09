@@ -24,11 +24,11 @@ If the action failed, the `error` or `errors` property alone will be set.
   ##### Response
   ```json
   {
-    "login":    2102224685,
-    "name":     "my Acme account",
-    "server":   "Acme-Server3",
+    "login": 2102224685,
+    "name": "my Acme account",
+    "server": "Acme-Server3",
     "currency": "USD",
-    "company":  "Acme, Ltd."
+    "company": "Acme, Ltd."
   }
   ```
 
@@ -70,7 +70,7 @@ If the action failed, the `error` or `errors` property alone will be set.
 ### Market
 
 - #### GET_SYMBOL_INFO
-  Get static information about the given market symbol.
+  Get static information about the given symbol.
   
   ##### Example
   ```json
@@ -97,6 +97,25 @@ If the action failed, the `error` or `errors` property alone will be set.
     "stop_level": 0.0,
     "tick_size": 1e-05,
     "tick_value": 1.0
+  }
+  ```
+
+- #### GET_SYMBOL_MARKET_INFO
+  Get market information about the given symbol.
+  The `property` must be one of the [symbol properties](https://docs.mql4.com/constants/environment_state/marketinfoconstants).
+  
+  ##### Example
+  ```json
+  {
+    "action": "GET_SYMBOL_MARKET_INFO",
+    "symbol": "EURUSD",
+    "property": "MODE_BID"
+  }
+  ```
+  ##### Response
+  ```json
+  {
+    "data": 1.13006
   }
   ```
 ==TODO more documentation==
