@@ -510,6 +510,9 @@ void Get_SymbolTick(CJAVal& req) {
 }
 
 void Get_Order(CJAVal& req) {
+    if (!assertParamExists(req, "ticket")) {
+        return;
+    }
     int ticket = (int)req["ticket"].ToInt();
     sendOrder(ticket);
 }
