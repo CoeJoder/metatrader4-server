@@ -139,4 +139,38 @@ If the action failed, the `error` or `errors` property alone will be set.
     "volume": 0
   }
   ```
+
+### Trading
+
+- #### GET_ORDER
+  Lookup an open, pending, or closed order using its ticket number.
+  
+  ##### Example
+  ```json
+  {
+    "action": "GET_ORDER",
+    "ticket": 121204376
+  }
+  ```
+  ##### Response
+  ```json
+  {
+    "close_price": 1.13668,
+    "close_time": "1970.01.01 00:00:00",
+    "comment": null,
+    "commission": -0.04,
+    "expiration": "1970.01.01 00:00:00",
+    "lots": 0.01,
+    "magic_number": 0,
+    "open_price": 1.13672,
+    "open_time": "2020.06.10 23:30:32",
+    "order_type": 0,
+    "profit": -0.04,
+    "sl": 0.0,
+    "swap": 0.0,
+    "symbol": "EURUSD",
+    "ticket": 121204376,
+    "tp": 0.0
+  }
+  ```
 ==TODO more documentation==
