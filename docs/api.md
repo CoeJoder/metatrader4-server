@@ -184,7 +184,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   ```
 
 - #### GET_ORDERS
-  Lookup all pending and open orders.
+  Lookup all market and pending orders.
   
   ##### Example
   ```json
@@ -215,6 +215,45 @@ If the action failed, the `error` or `errors` property alone will be set.
         "tp": 0.0
       }, {
         "close_price": 1.13671,
+        ...
+      }
+    ]
+  }
+  ```
+
+- #### GET_HISTORICAL_ORDERS
+  Lookup all closed orders loaded in the "Account History" tab of the MT4 terminal.
+  
+  ##### Example
+  ```json
+  {
+    "action": "GET_HISTORICAL_ORDERS"
+  }
+  ```
+  ##### Response
+  ```json
+  {
+    "data": [
+      {
+        "close_price": 1.13672,
+        "close_time": "2020.06.10 23:29:57",
+        "comment": null,
+        "commission": -0.04,
+        "expiration": "1970.01.01 00:00:00",
+        "lots": 0.01,
+        "magic_number": 0,
+        "open_price": 1.13665,
+        "open_time": "2020.06.10 23:29:42",
+        "order_type": 1,
+        "profit": -0.07,
+        "sl": 0.0,
+        "swap": 0.0,
+        "symbol": "EURUSD",
+        "ticket": 121204101,
+        "tp": 0.0
+      },
+      {
+        "close_price": 0.0,
         ...
       }
     ]
