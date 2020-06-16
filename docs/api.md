@@ -259,4 +259,30 @@ If the action failed, the `error` or `errors` property alone will be set.
     ]
   }
   ```
+
+- #### GET_SYMBOLS
+  Get a list of all market symbols available for trading.
+  
+  ##### Example
+  ```json
+  {
+    "action": "GET_SYMBOLS"
+  }
+  ```
+  ##### Response
+  ```json
+  {
+    "data": [
+      "AAPL",
+      "ADSGn",
+      "AIG",
+      "AIRF.PA",
+      "ALVG",
+      "AMZN",
+      "AUDCAD",
+      "AUDCHF",
+      ...
+    ]
+  }
+  ```
 ==TODO more documentation==
