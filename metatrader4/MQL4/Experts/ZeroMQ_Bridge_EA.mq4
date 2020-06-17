@@ -576,6 +576,10 @@ void Get_Symbols() {
 }
 
 void Get_OHLCV(CJAVal& req) {
+    if (!assertParamExists(req, "symbol") || !assertParamExists(req, "timeframe")
+            || !assertParamExists(req, "limit") || !assertParamExists(req, "timeout")) {
+        return;
+    }
     string symbol = req["symbol"].ToStr();
     int timeframe = (int)req["timeframe"].ToInt();
     int limit = (int)req["limit"].ToInt();
