@@ -36,7 +36,7 @@ If the action failed, the `error` or `errors` property alone will be set.
 
 - #### GET_ACCOUNT_INFO_INTEGER
   Get an integer property of the account (see [AccountInfoInteger](https://docs.mql4.com/account/accountinfointeger)).
-  The `property_name` must be from [ENUM_ACCOUNT_INFO_INTEGER](https://docs.mql4.com/constants/environment_state/accountinformation#enum_account_info_integer).
+  - `property_name` - the [ENUM_ACCOUNT_INFO_INTEGER](https://docs.mql4.com/constants/environment_state/accountinformation#enum_account_info_integer) to lookup
   
   ##### Example
   ```json
@@ -54,7 +54,7 @@ If the action failed, the `error` or `errors` property alone will be set.
 
 - #### GET_ACCOUNT_INFO_DOUBLE
   Get a double property of the account (see [AccountInfoDouble](https://docs.mql4.com/account/accountinfodouble)).
-  The `property_name` must be from [ENUM_ACCOUNT_INFO_DOUBLE](https://docs.mql4.com/constants/environment_state/accountinformation#enum_account_info_double).
+  - `property_name` - the [ENUM_ACCOUNT_INFO_DOUBLE](https://docs.mql4.com/constants/environment_state/accountinformation#enum_account_info_double) property to lookup
   
   ##### Example
   ```json
@@ -73,6 +73,7 @@ If the action failed, the `error` or `errors` property alone will be set.
 
 - #### GET_SYMBOL_INFO
   Get static information about the given symbol.
+  - `symbol` - the market symbol
   
   ##### Example
   ```json
@@ -107,7 +108,8 @@ If the action failed, the `error` or `errors` property alone will be set.
 
 - #### GET_SYMBOL_MARKET_INFO
   Get market information about the given symbol.
-  The `property` must be one of the [symbol properties](https://docs.mql4.com/constants/environment_state/marketinfoconstants).
+  - `symbol` - the market symbol
+  - `property` - the [symbol property](https://docs.mql4.com/constants/environment_state/marketinfoconstants) to lookup
   
   ##### Example
   ```json
@@ -126,6 +128,7 @@ If the action failed, the `error` or `errors` property alone will be set.
 
 - #### GET_SYMBOL_TICK
   Get the current prices of the given symbol (see [SymbolInfoTick](https://docs.mql4.com/marketinformation/symbolinfotick)).
+  - `symbol` - the market symbol
   
   ##### Example
   ```json
@@ -151,6 +154,7 @@ If the action failed, the `error` or `errors` property alone will be set.
 
 - #### GET_ORDER
   Lookup an open, pending, or closed order using its ticket number.
+  - `ticket` - the ticket number of the order
   
   ##### Example
   ```json
@@ -281,6 +285,48 @@ If the action failed, the `error` or `errors` property alone will be set.
       "AMZN",
       "AUDCAD",
       "AUDCHF",
+      ...
+    ]
+  }
+  ```
+
+- #### GET_OHLCV
+  Get the most recent OHLCV bars for the given symbol.  See 
+  - `symbol` - the market symbol
+  - `timeframe` - the width of the bars, in minutes
+  - `limit` - the maximum number of bars to return
+  - `timeout` - the timeout in milliseconds to wait for the broker's server to return the data
+  
+  ##### Example
+  ```json
+  {
+    "action": "GET_OHLCV",
+    "symbol": "EURUSD",
+    "timeframe": 60,
+    "limit": 100,
+    "timeout": 5000
+  }
+  ```
+  ##### Response
+  ```json
+  {
+    "data": [
+      {
+        "close": 1.12372,
+        "high": 1.124,
+        "low": 1.12301,
+        "open": 1.12307,
+        "tick_volume": 1702,
+        "time": 1592424000
+      },
+      {
+        "close": 1.12308,
+        "high": 1.12372,
+        "low": 1.12294,
+        "open": 1.12372,
+        "tick_volume": 1468,
+        "time": 1592427600
+      },
       ...
     ]
   }
