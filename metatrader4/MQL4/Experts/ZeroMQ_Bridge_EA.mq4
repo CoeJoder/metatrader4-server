@@ -614,12 +614,12 @@ void Get_OHLCV(CJAVal& req) {
         CJAVal ohlcv;
         for (int i = 0; i < numResults; i++) {
             CJAVal curBar;
-            curBar[0] = (long)rates[i].time;
-            curBar[1] = rates[i].open;
-            curBar[2] = rates[i].high;
-            curBar[3] = rates[i].low;
-            curBar[4] = rates[i].close;
-            curBar[5] = rates[i].tick_volume;
+            curBar["time"] = (long)rates[i].time;
+            curBar["open"] = rates[i].open;
+            curBar["high"] = rates[i].high;
+            curBar["low"] = rates[i].low;
+            curBar["close"] = rates[i].close;
+            curBar["tick_volume"] = rates[i].tick_volume;
             ohlcv.Add(curBar);
         }
         sendResponse(ohlcv);
