@@ -293,7 +293,7 @@ If the action failed, the `error` or `errors` property alone will be set.
 - #### GET_OHLCV
   Get the most recent OHLCV bars for the given symbol.  See 
   - `symbol` - the market symbol
-  - `timeframe` - the width of the bars, in minutes
+  - `timeframe` - the width of the bars, in minutes. Use a [standard timeframe](https://docs.mql4.com/constants/chartconstants/enum_timeframes) for a better chance of success.
   - `limit` - the maximum number of bars to return
   - `timeout` - the timeout in milliseconds to wait for the broker's server to return the data
   
