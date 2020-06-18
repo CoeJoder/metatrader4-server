@@ -36,6 +36,8 @@ If the action failed, the `error` or `errors` property alone will be set.
 
 - #### GET_ACCOUNT_INFO_INTEGER
   Get an integer property of the account (see [AccountInfoInteger](https://docs.mql4.com/account/accountinfointeger)).
+  
+  ##### Parameters
   - `property_name` - the [ENUM_ACCOUNT_INFO_INTEGER](https://docs.mql4.com/constants/environment_state/accountinformation#enum_account_info_integer) to lookup
   
   ##### Example
@@ -54,6 +56,8 @@ If the action failed, the `error` or `errors` property alone will be set.
 
 - #### GET_ACCOUNT_INFO_DOUBLE
   Get a double property of the account (see [AccountInfoDouble](https://docs.mql4.com/account/accountinfodouble)).
+  
+  ##### Parameters
   - `property_name` - the [ENUM_ACCOUNT_INFO_DOUBLE](https://docs.mql4.com/constants/environment_state/accountinformation#enum_account_info_double) property to lookup
   
   ##### Example
@@ -73,6 +77,8 @@ If the action failed, the `error` or `errors` property alone will be set.
 
 - #### GET_SYMBOL_INFO
   Get static information about the given symbol.
+  
+  ##### Parameters
   - `symbol` - the market symbol
   
   ##### Example
@@ -108,6 +114,8 @@ If the action failed, the `error` or `errors` property alone will be set.
 
 - #### GET_SYMBOL_MARKET_INFO
   Get market information about the given symbol.
+  
+  ##### Parameters
   - `symbol` - the market symbol
   - `property` - the [symbol property](https://docs.mql4.com/constants/environment_state/marketinfoconstants) to lookup
   
@@ -128,6 +136,8 @@ If the action failed, the `error` or `errors` property alone will be set.
 
 - #### GET_SYMBOL_TICK
   Get the current prices of the given symbol (see [SymbolInfoTick](https://docs.mql4.com/marketinformation/symbolinfotick)).
+  
+  ##### Parameters
   - `symbol` - the market symbol
   
   ##### Example
@@ -154,6 +164,8 @@ If the action failed, the `error` or `errors` property alone will be set.
 
 - #### GET_ORDER
   Lookup an open, pending, or closed order using its ticket number.
+  
+  ##### Parameters
   - `ticket` - the ticket number of the order
   
   ##### Example
@@ -291,9 +303,12 @@ If the action failed, the `error` or `errors` property alone will be set.
   ```
 
 - #### GET_OHLCV
-  Get the most recent OHLCV bars for the given symbol.  See 
+  Get the most recent OHLCV bars for the given symbol.
+  
+  ##### Parameters
   - `symbol` - the market symbol
-  - `timeframe` - the width of the bars, in minutes. Use a [standard timeframe](https://docs.mql4.com/constants/chartconstants/enum_timeframes) for a better chance of success.
+  - `timeframe` - the width of the bars, in minutes.
+    Use a [standard timeframe](https://docs.mql4.com/constants/chartconstants/enum_timeframes) for a better chance of the broker's server responding successfully.
   - `limit` - the maximum number of bars to return
   - `timeout` - the timeout in milliseconds to wait for the broker's server to return the data
   
@@ -312,23 +327,67 @@ If the action failed, the `error` or `errors` property alone will be set.
   {
     "data": [
       {
-        "close": 1.12372,
+        "open": 1.12307,
         "high": 1.124,
         "low": 1.12301,
-        "open": 1.12307,
+        "close": 1.12372,
         "tick_volume": 1702,
         "time": 1592424000
       },
       {
-        "close": 1.12308,
+        "open": 1.12372,
         "high": 1.12372,
         "low": 1.12294,
-        "open": 1.12372,
+        "close": 1.12308,
         "tick_volume": 1468,
         "time": 1592427600
       },
       ...
     ]
+  }
+  ```
+
+- #### GET_SIGNALS
+  Get all of the trade signals available in the terminal.
+  
+  ##### Example
+  ```json
+  {
+    "action": "GET_SIGNALS"
+  }
+  ```
+  ##### Response
+  ```json
+  {
+    "data": {
+      "A30090726": {
+        "author_login": "jiaye2",
+        "balance": 93826.79,
+        "broker": "International Capital Markets Pty Ltd.",
+        "broker_server": "ICMarkets-Demo03",
+        "currency": "USD",
+        "date_published": 1534307271,
+        "date_started": 1534308361,
+        "equity": 93826.79,
+        "gain": 840.72,
+        "id": 461007,
+        "leverage": 500,
+        "max_drawdown": 42.11,
+        "name": "A30090726",
+        "pips": 50302,
+        "price": 0.0,
+        "rating": 4,
+        "roi": 838.27,
+        "subscribers": 4,
+        "trade_mode": 1,
+        "trades": 3257
+      },
+      "A30090742": {
+        "author_login": "jiaye2",
+        ...
+      },
+      ...
+    }
   }
   ```
 ==TODO more documentation==
