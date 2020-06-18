@@ -638,10 +638,11 @@ void Get_Signals() {
         else {
             // signal selected
             CJAVal curSignal;
+            string name = SignalBaseGetString(SIGNAL_BASE_NAME);
             curSignal["author_login"] = SignalBaseGetString(SIGNAL_BASE_AUTHOR_LOGIN);
             curSignal["broker"] = SignalBaseGetString(SIGNAL_BASE_BROKER);
             curSignal["broker_server"] = SignalBaseGetString(SIGNAL_BASE_BROKER_SERVER);
-            curSignal["name"] = SignalBaseGetString(SIGNAL_BASE_NAME);
+            curSignal["name"] = name;
             curSignal["currency"] = SignalBaseGetString(SIGNAL_BASE_CURRENCY);
             curSignal["date_published"] = SignalBaseGetInteger(SIGNAL_BASE_DATE_PUBLISHED);
             curSignal["date_started"] = SignalBaseGetInteger(SIGNAL_BASE_DATE_STARTED);
@@ -658,7 +659,7 @@ void Get_Signals() {
             curSignal["max_drawdown"] = SignalBaseGetDouble(SIGNAL_BASE_MAX_DRAWDOWN);
             curSignal["price"] = SignalBaseGetDouble(SIGNAL_BASE_PRICE);
             curSignal["roi"] = SignalBaseGetDouble(SIGNAL_BASE_ROI);
-            signals.Add(curSignal);
+            signals[name].Set(curSignal);
         }
     }
     sendResponse(signals);
