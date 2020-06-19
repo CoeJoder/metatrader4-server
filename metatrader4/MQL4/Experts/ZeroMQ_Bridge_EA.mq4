@@ -666,6 +666,21 @@ void Get_Signals() {
 }
 
 void Do_OrderSend(CJAVal& req) {
+    if (!assertParamExists(req, "symbol") || !assertParamExists(req, "order_type")
+            || !assertParamExists(req, "lots") || !assertParamExists(req, "comment")) {
+        return;
+    }
+
+    // stop-loss and take-profit params must be either relative or absolute, but not both
+    if (!IsNullOrMissing(req, "sl") && !IsNullOrMissing(req, "sl_points")) {
+        sendError("Stop-loss cannot be both relative (sl_points) and absolute (sl).  Specify one or the other.");
+        return;
+    }
+    if (!IsNullOrMissing(req, "tp") && !IsNullOrMissing(req, "tp_points")) {
+        sendError("Take-profit cannot be both relative (tp_points) and absolute (tp).  Specify one or the other.");
+        return;
+    }
+
     string symbol = req["symbol"].ToStr();
     int orderType = (int)req["order_type"].ToInt();
     double lots = req["lots"].ToDbl();
