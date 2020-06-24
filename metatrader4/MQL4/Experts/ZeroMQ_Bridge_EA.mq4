@@ -691,6 +691,16 @@ void Do_OrderSend(CJAVal& req) {
         return;
     }
 
+    if (!IsValidTradeOperation(orderType)) {
+        sendError(StringFormat("Invalid trade operation: %d", orderType));
+        return;
+    }
+
+    if (IsPendingOrder(orderType) && IsNullOrMissing(req, "price")) {
+        sendError("Cannot place a pending order without the \"price\" parameter.");
+        return;
+    }
+
     // use default values as needed for the optional request params
     double price = GetDefault(req, "price", DefaultOpenPrice(symbol, orderType));
     int slippage = GetDefault(req, "slippage", DefaultSlippage(symbol));
@@ -780,7 +790,6 @@ bool _modifySelectedOrder(double price=NULL, double stopLoss=NULL, double takePr
     int ticket = OrderTicket();
     string symbol = OrderSymbol();
     int type = OrderType();
-    bool isPendingOrder = (type == OP_BUYLIMIT || type == OP_BUYSTOP || type == OP_SELLLIMIT || type == OP_SELLSTOP);
 
     int stopLevelPoints = (int)MarketInfo(symbol, MODE_STOPLEVEL);
     // +1 to deal with non-inclusive inequality
@@ -791,7 +800,7 @@ bool _modifySelectedOrder(double price=NULL, double stopLoss=NULL, double takePr
     double ask = MarketInfo(symbol, MODE_ASK);
     double bid = MarketInfo(symbol, MODE_BID);
 
-    if (isPendingOrder && price != NULL) {
+    if (IsPendingOrder(type) && price != NULL) {
         price = NormalizePrice(symbol, _getPriceMod(type, ask, bid, minDist, price));
     }
     else {
@@ -1137,6 +1146,11 @@ bool SymbolExists(string symbol) {
     return (GetLastError() != ERR_UNKNOWN_SYMBOL);
 }
 
+bool IsValidTradeOperation(int orderType) {
+    return (orderType == OP_BUY || orderType == OP_SELL || orderType == OP_BUYLIMIT || orderType == OP_BUYSTOP ||
+            orderType == OP_SELLLIMIT || orderType == OP_SELLSTOP);
+}
+
 // current market open price, normalized to tick size
 double DefaultOpenPrice(string symbol, int orderType) {
     double price = (orderType == OP_BUY || orderType == OP_BUYLIMIT || orderType == OP_BUYSTOP) ?
@@ -1227,6 +1241,10 @@ bool IsNullOrMissing(CJAVal& obj, string key) {
         return (obj[key].m_type == jtNULL);
     }
     return true;
+}
+
+bool IsPendingOrder(int orderType) {
+    return (orderType == OP_BUYLIMIT || orderType == OP_BUYSTOP || orderType == OP_SELLLIMIT || orderType == OP_SELLSTOP);
 }
 
 bool GetDefault(CJAVal& obj, string key, bool defaultVal) {
