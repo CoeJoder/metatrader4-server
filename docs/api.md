@@ -2,6 +2,7 @@
 The transport format for requests and responses is JSON.
 
 Request objects contain an `action` string property, with any params as additional properties.
+Response objects contain a `response` property.
 
 If the action completed with caveats, the response object will contain a `warning` or `warnings` property.
 If the action failed, the `error` or `errors` property alone will be set.
@@ -22,7 +23,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": {
+    "response": {
       "login": 2102224685,
       "name": "my Acme account",
       "server": "Acme-Server3",
@@ -48,7 +49,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": 1500.0
+    "response": 1500.0
   }
   ```
 
@@ -68,7 +69,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": 5000.0
+    "response": 5000.0
   }
   ```
 ## Market
@@ -89,7 +90,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": {
+    "response": {
       "digits": 5,
       "freeze_level": 0.0,
       "lot_size": 100000.0,
@@ -128,7 +129,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": 1.13006
+    "response": 1.13006
   }
   ```
 
@@ -148,7 +149,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": {
+    "response": {
       "ask": 1.13346,
       "bid": 1.13338,
       "last": 0.0,
@@ -170,7 +171,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": [
+    "response": [
       "AAPL",
       "ADSGn",
       "AIG",
@@ -207,7 +208,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": [
+    "response": [
       {
         "open": 1.12307,
         "high": 1.124,
@@ -241,7 +242,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": {
+    "response": {
       "A30090726": {
         "author_login": "jiaye2",
         "balance": 93826.79,
@@ -291,7 +292,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": {
+    "response": {
       "close_price": 1.13668,
       "close_time": "1970.01.01 00:00:00",
       "comment": null,
@@ -324,7 +325,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": [
+    "response": [
       {
         "close_price": 1.13668,
         "close_time": "1970.01.01 00:00:00",
@@ -362,7 +363,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": [
+    "response": [
       {
         "close_price": 1.13672,
         "close_time": "2020.06.10 23:29:57",
@@ -423,7 +424,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Response
   ```json
   {
-    "data": {
+    "response": {
       "close_price": 1.12523,
       "close_time": "1970.01.01 00:00:00",
       "comment": "This is a market buy order.",

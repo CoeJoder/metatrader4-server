@@ -23,7 +23,7 @@ extern int MIN_POINT_DISTANCE = 3;
 extern bool VERBOSE = true;
 
 // response message keys
-const string KEY_DATA = "data";
+const string KEY_RESPONSE = "response";
 const string KEY_ERROR = "error";
 const string KEY_ERRORS = "errors";
 const string KEY_ERROR_CODE = "error_code";
@@ -248,7 +248,7 @@ void _serializeAndPushResponse(CJAVal& resp) {
 
 void sendResponse(CJAVal& data, string warning=NULL) {
     CJAVal resp;
-    resp[KEY_DATA].Set(data);
+    resp[KEY_RESPONSE].Set(data);
     if (warning != NULL) {
         resp[KEY_WARNING] = warning;
     }
@@ -257,7 +257,7 @@ void sendResponse(CJAVal& data, string warning=NULL) {
 
 void sendResponse(string val, string warning=NULL) {
     CJAVal resp;
-    resp[KEY_DATA] = val;
+    resp[KEY_RESPONSE] = val;
     if (warning != NULL) {
         resp[KEY_WARNING] = warning;
     }
@@ -266,7 +266,7 @@ void sendResponse(string val, string warning=NULL) {
 
 void sendResponse(double val, string warning=NULL) {
     CJAVal resp;
-    resp[KEY_DATA] = val;
+    resp[KEY_RESPONSE] = val;
     if (warning != NULL) {
         resp[KEY_WARNING] = warning;
     }
@@ -275,7 +275,7 @@ void sendResponse(double val, string warning=NULL) {
 
 void sendResponse(long val, string warning=NULL) {
     CJAVal resp;
-    resp[KEY_DATA] = val;
+    resp[KEY_RESPONSE] = val;
     if (warning != NULL) {
         resp[KEY_WARNING] = warning;
     }
