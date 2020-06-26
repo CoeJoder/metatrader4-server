@@ -406,7 +406,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   - `slippage` - the maximum price slippage, in points.  Omit to use a permissive default (2x the market spread)
   - `sl` - the absolute stop-loss
   - `sl_points` - the relative stop-loss (mutually exclusive with `sl`)
-  - `tp` - the absolute take-profit to use
+  - `tp` - the absolute take-profit
   - `tp_points` - the relative take-profit (mutually exclusive with `tp`)
   - `comment` - a string comment to attach to the order
   
@@ -442,6 +442,26 @@ If the action failed, the `error` or `errors` property alone will be set.
       "ticket": 124114600,
       "tp": 0.0
     }
+  }
+  ```
+
+- ### DO_ORDER_CLOSE
+  Close an opened order.
+  
+  #### Parameters
+  - `ticket` - the ticket number of the order
+  
+  #### Example
+  ```json
+  {
+    "action": "DO_ORDER_SEND",
+    "ticket": 124114600
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "response": "Closed order # 124114600"
   }
   ```
 ==TODO more documentation==
