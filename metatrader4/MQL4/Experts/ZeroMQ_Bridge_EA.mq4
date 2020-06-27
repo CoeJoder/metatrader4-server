@@ -986,6 +986,9 @@ double _getTPMod(int orderType, double ask, double bid, double dist, double pric
 }
 
 void Do_OrderClose(CJAVal& req) {
+    if (!assertParamExists(req, "ticket")) {
+        return;
+    }
     int ticket = (int)req["ticket"].ToInt();
 
     if (!OrderSelect(ticket, SELECT_BY_TICKET, MODE_TRADES)) {
