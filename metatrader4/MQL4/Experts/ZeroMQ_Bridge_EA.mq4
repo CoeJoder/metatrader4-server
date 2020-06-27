@@ -1023,6 +1023,9 @@ void Do_OrderClose(CJAVal& req) {
 }
 
 void Do_OrderDelete(CJAVal& req) {
+    if (!assertParamExists(req, "ticket")) {
+        return;
+    }
     int ticket = (int)req["ticket"].ToInt();
 
     if (!OrderSelect(ticket, SELECT_BY_TICKET, MODE_TRADES)) {
