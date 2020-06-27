@@ -454,7 +454,7 @@ If the action failed, the `error` or `errors` property alone will be set.
   #### Example
   ```json
   {
-    "action": "DO_ORDER_SEND",
+    "action": "DO_ORDER_CLOSE",
     "ticket": 124114600
   }
   ```
@@ -462,6 +462,26 @@ If the action failed, the `error` or `errors` property alone will be set.
   ```json
   {
     "response": "Closed order # 124114600"
+  }
+  ```
+
+- ### DO_ORDER_DELETE
+  Delete a pending order.  If the order is open (no longer pending), it is closed at the current market price.
+  
+  #### Parameters
+  - `ticket` - the ticket number of the order
+  
+  #### Example
+  ```json
+  {
+    "action": "DO_ORDER_DELETE",
+    "ticket": 124114600
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "response": "Deleted pending order # 124114600"
   }
   ```
 ==TODO more documentation==
