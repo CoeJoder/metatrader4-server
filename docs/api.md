@@ -484,4 +484,47 @@ If the action failed, the `error` or `errors` property alone will be set.
     "response": "Deleted pending order # 124114600"
   }
   ```
+
+- ### DO_ORDER_MODIFY
+  Modify a previously opened or pending order.
+  
+  #### Parameters
+  - `ticket` - the ticket number of the order
+  - `price` - the new open price of the pending order
+  - `sl` - the absolute stop-loss
+  - `sl_points` - the relative stop-loss (mutually exclusive with `sl`)
+  - `tp` - the absolute take-profit
+  - `tp_points` - the relative take-profit (mutually exclusive with `tp`)
+  
+  #### Example
+  ```json
+  {
+    "action": "DO_ORDER_MODIFY",
+    "ticket": 124114600,
+    "price": 1.13552
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "response": {
+      "close_price": 1.13552,
+      "close_time": "1970.01.01 00:00:00",
+      "comment": "This is a pending order.",
+      "commission": -4.0,
+      "expiration": "1970.01.01 00:00:00",
+      "lots": 1.0,
+      "magic_number": 0,
+      "open_price": 1.13552,
+      "open_time": "2020.06.25 04:50:17",
+      "order_type": 0,
+      "profit": -7.0,
+      "sl": 0.0,
+      "swap": 0.0,
+      "symbol": "EURUSD",
+      "ticket": 124114600,
+      "tp": 0.0
+    }
+  }
+  ```
 ==TODO more documentation==
