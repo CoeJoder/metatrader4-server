@@ -754,6 +754,9 @@ void Do_OrderSend(CJAVal& req) {
 }
 
 void Do_OrderModify(CJAVal& req) {
+    if (!assertParamExists(req, "ticket")) {
+        return;
+    }
     int ticket = (int)req["ticket"].ToInt();
 
     if (!OrderSelect(ticket, SELECT_BY_TICKET, MODE_TRADES)) {
