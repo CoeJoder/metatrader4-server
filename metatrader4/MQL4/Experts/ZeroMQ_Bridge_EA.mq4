@@ -1063,6 +1063,9 @@ void Do_OrderDelete(CJAVal& req) {
 }
 
 void Run_Indicator(CJAVal& req) {
+    if (!assertParamExists(req, "indicator") || !assertParamExists(req, "argv") || !assertParamExists(req, "timeout")) {
+        return;
+    }
     string strIndicator = req["indicator"].ToStr();
     CJAVal argv = req["argv"];
     long timeout = (int)req["timeout"].ToInt();
