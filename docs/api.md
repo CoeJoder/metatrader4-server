@@ -527,4 +527,30 @@ If the action failed, the `error` or `errors` property alone will be set.
     }
   }
   ```
-==TODO more documentation==
+
+- ### RUN_INDICATOR
+  Run one of the built-in [technical indicator functions](https://docs.mql4.com/indicators).
+  If data is requested that is not already loaded in the terminal, it must be loaded from the broker server, which is why
+  a timeout must be specified.
+  
+  
+  #### Parameters
+  - `indicator` - the name of the indicator function
+  - `argv` - a list of indicator function parameters
+  - `timeout` - the timeout in milliseconds
+  
+  #### Example
+  ```json
+  {
+    "action": "RUN_INDICATOR",
+    "indicator": "iAC",
+    "argv": ["EURUSD", 60, 1],
+    "timeout": 5000
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "response": 2.251e-05
+  }
+  ```
