@@ -4,8 +4,9 @@ The transport format for requests and responses is JSON.
 Request objects contain an `action` string property, with any params as additional properties.
 Response objects contain a `response` property.
 
-If the action completed with caveats, the response object will contain a `warning` or `warnings` property.
-If the action failed, the `error` or `errors` property alone will be set.
+If the action completed with caveats, the response will contain a `warning` property.
+If the action failed, the response will contain one or more of the following properties: `error_code`, `error_code_description`, `error_message`.
+See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes).
 
 # Actions
 
