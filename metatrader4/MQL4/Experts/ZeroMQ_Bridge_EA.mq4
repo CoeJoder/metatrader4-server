@@ -25,10 +25,8 @@ extern bool VERBOSE = true;
 // response message keys
 const string KEY_RESPONSE = "response";
 const string KEY_ERROR = "error";
-const string KEY_ERRORS = "errors";
 const string KEY_ERROR_CODE = "error_code";
 const string KEY_WARNING = "warning";
-const string KEY_WARNINGS = "warnings";
 
 // types of requests
 enum RequestAction {
@@ -285,13 +283,14 @@ void sendResponse(long val, string warning=NULL) {
 void sendError(int code, string msg) {
     CJAVal resp;
     resp[KEY_ERROR_CODE] = code;
-    resp[KEY_ERROR] = msg;
+    resp[KEY_ERROR] = StringFormat("%s (%s)", ErrorDescription(code), msg);
     _serializeAndPushResponse(resp);
 }
 
 void sendError(int code) {
     CJAVal resp;
     resp[KEY_ERROR_CODE] = code;
+    resp[KEY_ERROR] = ErrorDescription(code);
     _serializeAndPushResponse(resp);
 }
 
