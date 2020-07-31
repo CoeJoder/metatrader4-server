@@ -43,6 +43,7 @@ enum RequestAction {
     GET_SYMBOLS,
     GET_OHLCV,
     GET_SIGNALS,
+    GET_SIGNAL_INFO,
     DO_ORDER_SEND,
     DO_ORDER_CLOSE,
     DO_ORDER_DELETE,
@@ -212,6 +213,9 @@ void OnTimer() {
                 break;
             case GET_SIGNALS:
                 Get_Signals();
+                break;
+            case GET_SIGNAL_INFO:
+                Get_SignalInfo(req);
                 break;
             case DO_ORDER_SEND:
                 Do_OrderSend(req);
@@ -637,33 +641,61 @@ void Get_Signals() {
             return;
         }
         else {
-            // signal selected
-            CJAVal curSignal;
-            string name = SignalBaseGetString(SIGNAL_BASE_NAME);
-            curSignal["author_login"] = SignalBaseGetString(SIGNAL_BASE_AUTHOR_LOGIN);
-            curSignal["broker"] = SignalBaseGetString(SIGNAL_BASE_BROKER);
-            curSignal["broker_server"] = SignalBaseGetString(SIGNAL_BASE_BROKER_SERVER);
-            curSignal["name"] = name;
-            curSignal["currency"] = SignalBaseGetString(SIGNAL_BASE_CURRENCY);
-            curSignal["date_published"] = SignalBaseGetInteger(SIGNAL_BASE_DATE_PUBLISHED);
-            curSignal["date_started"] = SignalBaseGetInteger(SIGNAL_BASE_DATE_STARTED);
-            curSignal["id"] = SignalBaseGetInteger(SIGNAL_BASE_ID);
-            curSignal["leverage"] = SignalBaseGetInteger(SIGNAL_BASE_LEVERAGE);
-            curSignal["pips"] = SignalBaseGetInteger(SIGNAL_BASE_PIPS);
-            curSignal["rating"] = SignalBaseGetInteger(SIGNAL_BASE_RATING);
-            curSignal["subscribers"] = SignalBaseGetInteger(SIGNAL_BASE_SUBSCRIBERS);
-            curSignal["trades"] = SignalBaseGetInteger(SIGNAL_BASE_TRADES);
-            curSignal["trade_mode"] = SignalBaseGetInteger(SIGNAL_BASE_TRADE_MODE);
-            curSignal["balance"] = SignalBaseGetDouble(SIGNAL_BASE_BALANCE);
-            curSignal["equity"] = SignalBaseGetDouble(SIGNAL_BASE_EQUITY);
-            curSignal["gain"] = SignalBaseGetDouble(SIGNAL_BASE_GAIN);
-            curSignal["max_drawdown"] = SignalBaseGetDouble(SIGNAL_BASE_MAX_DRAWDOWN);
-            curSignal["price"] = SignalBaseGetDouble(SIGNAL_BASE_PRICE);
-            curSignal["roi"] = SignalBaseGetDouble(SIGNAL_BASE_ROI);
-            signals[name].Set(curSignal);
+            signals.Add(SignalBaseGetString(SIGNAL_BASE_NAME));
         }
     }
     sendResponse(signals);
+}
+
+void Get_SignalInfo(CJAVal& req) {
+    if (!assertParamExists(req, "names")) {
+        return;
+    }
+    CJAVal* reqNames = req["names"];
+    CJAVal signals;
+    int total = SignalBaseTotal();
+    for (int i = 0; i < total; i++) {
+        if (!SignalBaseSelect(i)) {
+            sendError(GetLastError());
+            return;
+        }
+        else {
+            // signal selected
+            string name = SignalBaseGetString(SIGNAL_BASE_NAME);
+            if (ArrayContains(reqNames, name)) {
+                CJAVal signal;
+                signal["author_login"] = SignalBaseGetString(SIGNAL_BASE_AUTHOR_LOGIN);
+                signal["broker"] = SignalBaseGetString(SIGNAL_BASE_BROKER);
+                signal["broker_server"] = SignalBaseGetString(SIGNAL_BASE_BROKER_SERVER);
+                signal["name"] = name;
+                signal["currency"] = SignalBaseGetString(SIGNAL_BASE_CURRENCY);
+                signal["date_published"] = SignalBaseGetInteger(SIGNAL_BASE_DATE_PUBLISHED);
+                signal["date_started"] = SignalBaseGetInteger(SIGNAL_BASE_DATE_STARTED);
+                signal["id"] = SignalBaseGetInteger(SIGNAL_BASE_ID);
+                signal["leverage"] = SignalBaseGetInteger(SIGNAL_BASE_LEVERAGE);
+                signal["pips"] = SignalBaseGetInteger(SIGNAL_BASE_PIPS);
+                signal["rating"] = SignalBaseGetInteger(SIGNAL_BASE_RATING);
+                signal["subscribers"] = SignalBaseGetInteger(SIGNAL_BASE_SUBSCRIBERS);
+                signal["trades"] = SignalBaseGetInteger(SIGNAL_BASE_TRADES);
+                signal["trade_mode"] = SignalBaseGetInteger(SIGNAL_BASE_TRADE_MODE);
+                signal["balance"] = SignalBaseGetDouble(SIGNAL_BASE_BALANCE);
+                signal["equity"] = SignalBaseGetDouble(SIGNAL_BASE_EQUITY);
+                signal["gain"] = SignalBaseGetDouble(SIGNAL_BASE_GAIN);
+                signal["max_drawdown"] = SignalBaseGetDouble(SIGNAL_BASE_MAX_DRAWDOWN);
+                signal["price"] = SignalBaseGetDouble(SIGNAL_BASE_PRICE);
+                signal["roi"] = SignalBaseGetDouble(SIGNAL_BASE_ROI);
+                signals[name].Set(signal);
+            }
+        }
+    }
+    if (signals.Size() > 0) {
+        sendResponse(signals);
+        return;
+    }
+    else {
+        sendError(StringFormat("Signals not found: %s", reqNames.Serialize()));
+        return;
+    }
 }
 
 void Do_OrderSend(CJAVal& req) {
@@ -1258,6 +1290,16 @@ bool IsNullOrMissing(CJAVal& obj, string key) {
 
 bool IsPendingOrder(int orderType) {
     return (orderType == OP_BUYLIMIT || orderType == OP_BUYSTOP || orderType == OP_SELLLIMIT || orderType == OP_SELLSTOP);
+}
+
+bool ArrayContains(CJAVal& arr, string val) {
+    for (int i = arr.Size() - 1; i >= 0; --i) {
+        string curVal = arr[i].ToStr();
+        if (val == curVal) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool GetDefault(CJAVal& obj, string key, bool defaultVal) {

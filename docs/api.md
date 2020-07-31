@@ -232,7 +232,7 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   ```
 
 - ### GET_SIGNALS
-  Get all of the trade signals available in the terminal.
+  Get a list of all trade signals available in the terminal.
   
   #### Example
   ```json
@@ -243,34 +243,64 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   #### Response
   ```json
   {
-    "response": {
-      "A30090726": {
-        "author_login": "jiaye2",
-        "balance": 93826.79,
-        "broker": "International Capital Markets Pty Ltd.",
-        "broker_server": "ICMarkets-Demo03",
-        "currency": "USD",
-        "date_published": 1534307271,
-        "date_started": 1534308361,
-        "equity": 93826.79,
-        "gain": 840.72,
-        "id": 461007,
-        "leverage": 500,
-        "max_drawdown": 42.11,
-        "name": "A30090726",
-        "pips": 50302,
-        "price": 0.0,
-        "rating": 4,
-        "roi": 838.27,
-        "subscribers": 4,
-        "trade_mode": 1,
-        "trades": 3257
-      },
-      "A30090742": {
-        "author_login": "jiaye2",
-        ...
-      },
+    "response": [
+      "FibonacciBreakout",
+      "EA Happy Gold",
+      "Batman EA",
+      "EA Happy Market Hours",
+      "EA Red Dragon l Demo FXCC l",
+      "EA Skynet l Demo FXCC l",
       ...
+  }
+  ```
+
+- ### GET_SIGNAL_INFO
+  Get detailed information on one or more trading signals.
+
+  #### Parameters
+  - `names` - a list of signal names
+
+  #### Example
+  ```json
+  {
+    "action": "GET_SIGNAL_INFO",
+    "names": [
+      "EA Happy Gold",  
+      "FibonacciBreakout"  
+    ]
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "response": {
+      "EA Happy Gold": { 
+        "author_login": "HappyForex",
+        "balance": 220230.23,
+        "broker": "TF Global Markets (Aust) Pty Ltd",
+        "broker_server": "ThinkForexAU-Demo",
+        "currency": "USD",
+        "date_published": 1396947432,
+        "date_started": 1396940232,
+        "equity": 220230.23,
+        "gain": 21923.02,
+        "id": 36094,
+        "leverage": 400,
+        "max_drawdown": 21.98,
+        "name": "EA Happy Gold",
+        "pips": 41114,
+        "price": 20.0,
+        "rating": 46,
+        "roi": 21923.02,
+        "subscribers": 0,
+        "trade_mode": 1,
+        "trades": 1443
+      },
+      "FibonacciBreakout": { 
+        "author_login": "Antonov-EA",
+        "balance": 21522.68,
+        ...
+      }
     }
   }
   ```
