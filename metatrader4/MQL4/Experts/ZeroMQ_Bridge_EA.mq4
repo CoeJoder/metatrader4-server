@@ -318,6 +318,22 @@ bool assertParamExists(CJAVal& req, string paramName) {
     return true;
 }
 
+bool assertParamArrayExistsAndNotEmpty(CJAVal& req, string paramName) {
+    if (!assertParamExists(req, paramName)) {
+        return false;
+    }
+    CJAVal* param = req[paramName];
+    if (param.m_type != jtARRAY) {
+        sendError(StringFormat("Param \"%s\" is not an array.", paramName));
+        return false;
+    }
+    if (param.Size() == 0) {
+        sendError(StringFormat("Param \"%s[]\" is empty.", paramName));
+        return false;
+    }
+    return true;
+}
+
 // selects an order and sends it to the client, or sends an error code if not found
 void sendOrder(int ticket, string warning=NULL) {
     if (OrderSelect(ticket, SELECT_BY_TICKET, MODE_TRADES)) {
@@ -415,51 +431,55 @@ void Get_AccountInfoDouble(CJAVal& req) {
 }
 
 void Get_SymbolInfo(CJAVal& req) {
-    if (!assertParamExists(req, "symbol")) {
+    if (!assertParamArrayExistsAndNotEmpty(req, "names")) {
         return;
     }
-    string symbol = req["symbol"].ToStr();
+    CJAVal* names = req["names"];
+    CJAVal symbols;
+    for (int i = 0; i < names.Size(); i++) {
+        string name = names[i].ToStr();
+        if (!SymbolExists(name)) {
+            sendError(ERR_UNKNOWN_SYMBOL, name);
+            return;
+        }
+        double point_size = MarketInfo(name, MODE_POINT);         // Point size in the quote currency
+        double digits = MarketInfo(name, MODE_DIGITS);            // Digits after decimal point
+        double lot_size = MarketInfo(name, MODE_LOTSIZE);         // Lot size in the base currency
+        double tick_value = MarketInfo(name, MODE_TICKVALUE);     // Tick value in the deposit currency
+        double tick_size = MarketInfo(name, MODE_TICKSIZE);       // Tick size in points
+        double min_lot = MarketInfo(name, MODE_MINLOT);           // Minimum permitted amount of a lot
+        double lot_step = MarketInfo(name, MODE_LOTSTEP);         // Step for changing lots
+        double max_lot = MarketInfo(name, MODE_MAXLOT);           // Maximum permitted amount of a lot
+        double margin_init = MarketInfo(name, MODE_MARGININIT);   // Initial margin requirements for 1 lot
+        double margin_maintenance =                               // Margin to maintain open orders calculated for 1 lot
+            MarketInfo(name ,MODE_MARGINMAINTENANCE);
+        double margin_hedged =                                    // Hedged margin calculated for 1 lot
+            MarketInfo(name, MODE_MARGINHEDGED);
+        double margin_required =                                  // Free margin required to open 1 lot for buying
+            MarketInfo(name, MODE_MARGINREQUIRED);
+        double stop_level = MarketInfo(name, MODE_STOPLEVEL);     // Stop level in points
+        double freeze_level = MarketInfo(name, MODE_FREEZELEVEL); // Order freeze level in points
 
-    if (!SymbolExists(symbol)) {
-        sendError(ERR_UNKNOWN_SYMBOL, symbol);
-        return;
+        CJAVal symbol;
+        symbol["name"] = name;
+        symbol["point_size"] = point_size;
+        symbol["digits"] = (int) digits;
+        symbol["lot_size"] = lot_size;
+        symbol["tick_value"] = tick_value;
+        symbol["tick_size"] = tick_size;
+        symbol["min_lot"] = min_lot;
+        symbol["lot_step"] = lot_step;
+        symbol["max_lot"] = max_lot;
+        symbol["margin_init"] = margin_init;
+        symbol["margin_maintenance"] = margin_maintenance;
+        symbol["margin_hedged"] = margin_hedged;
+        symbol["margin_required"] = margin_required;
+        symbol["stop_level"] = stop_level;
+        symbol["freeze_level"] = freeze_level;
+        symbols[name].Set(symbol);
     }
-
-    double point_size = MarketInfo(symbol, MODE_POINT);         // Point size in the quote currency
-    double digits = MarketInfo(symbol, MODE_DIGITS);            // Digits after decimal point
-    double lot_size = MarketInfo(symbol, MODE_LOTSIZE);         // Lot size in the base currency
-    double tick_value = MarketInfo(symbol, MODE_TICKVALUE);     // Tick value in the deposit currency
-    double tick_size = MarketInfo(symbol, MODE_TICKSIZE);       // Tick size in points
-    double min_lot = MarketInfo(symbol, MODE_MINLOT);           // Minimum permitted amount of a lot
-    double lot_step = MarketInfo(symbol, MODE_LOTSTEP);         // Step for changing lots
-    double max_lot = MarketInfo(symbol, MODE_MAXLOT);           // Maximum permitted amount of a lot
-    double margin_init = MarketInfo(symbol, MODE_MARGININIT);   // Initial margin requirements for 1 lot
-    double margin_maintenance =                                 // Margin to maintain open orders calculated for 1 lot
-        MarketInfo(symbol ,MODE_MARGINMAINTENANCE);
-    double margin_hedged =                                      // Hedged margin calculated for 1 lot
-        MarketInfo(symbol, MODE_MARGINHEDGED);
-    double margin_required =                                    // Free margin required to open 1 lot for buying
-        MarketInfo(symbol, MODE_MARGINREQUIRED);
-    double stop_level = MarketInfo(symbol, MODE_STOPLEVEL);     // Stop level in points
-    double freeze_level = MarketInfo(symbol, MODE_FREEZELEVEL); // Order freeze level in points
-
-    CJAVal symbol_info;
-    symbol_info["name"] = symbol;
-    symbol_info["point_size"] = point_size;
-    symbol_info["digits"] = (int) digits;
-    symbol_info["lot_size"] = lot_size;
-    symbol_info["tick_value"] = tick_value;
-    symbol_info["tick_size"] = tick_size;
-    symbol_info["min_lot"] = min_lot;
-    symbol_info["lot_step"] = lot_step;
-    symbol_info["max_lot"] = max_lot;
-    symbol_info["margin_init"] = margin_init;
-    symbol_info["margin_maintenance"] = margin_maintenance;
-    symbol_info["margin_hedged"] = margin_hedged;
-    symbol_info["margin_required"] = margin_required;
-    symbol_info["stop_level"] = stop_level;
-    symbol_info["freeze_level"] = freeze_level;
-    sendResponse(symbol_info);
+    sendResponse(symbols);
+    return;
 }
 
 void Get_SymbolMarketInfo(CJAVal& req) {
@@ -648,7 +668,7 @@ void Get_Signals() {
 }
 
 void Get_SignalInfo(CJAVal& req) {
-    if (!assertParamExists(req, "names")) {
+    if (!assertParamArrayExistsAndNotEmpty(req, "names")) {
         return;
     }
     CJAVal* reqNames = req["names"];
@@ -662,7 +682,7 @@ void Get_SignalInfo(CJAVal& req) {
         else {
             // signal selected
             string name = SignalBaseGetString(SIGNAL_BASE_NAME);
-            if (ArrayContains(reqNames, name)) {
+            if (ArrayEraseElement(reqNames.m_e, name)) {
                 CJAVal signal;
                 signal["author_login"] = SignalBaseGetString(SIGNAL_BASE_AUTHOR_LOGIN);
                 signal["broker"] = SignalBaseGetString(SIGNAL_BASE_BROKER);
@@ -688,7 +708,7 @@ void Get_SignalInfo(CJAVal& req) {
             }
         }
     }
-    if (signals.Size() > 0) {
+    if (reqNames.Size() == 0) {
         sendResponse(signals);
         return;
     }
@@ -1269,10 +1289,38 @@ template<typename T> T StringToEnum(string str, T enumType) {
 }
 
 template <typename T> void ArrayErase(T& arr[], int index) {
-    for(int last = ArraySize(arr) - 1; index < last; ++index) {
+    int last;
+    for(last = ArraySize(arr) - 1; index < last; ++index) {
         arr[index] = arr[index + 1];
     }
     ArrayResize(arr, last);
+}
+
+template <typename T, typename E> bool ArrayEraseElement(T& arr[], E element) {
+    bool elementRemoved = false;
+    for (int i = 0; i < ArraySize(arr); ++i) {
+        if (arr[i] == element) {
+            int index = i;
+            int last;
+            for(last = ArraySize(arr) - 1; index < last; ++index) {
+                arr[index] = arr[index + 1];
+            }
+            ArrayResize(arr, last);
+            elementRemoved = true;
+            --i;
+        }
+    }
+    return elementRemoved;
+}
+
+bool ArrayContains(CJAVal& arr, string val) {
+    for (int i = arr.Size() - 1; i >= 0; --i) {
+        string curVal = arr[i].ToStr();
+        if (val == curVal) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Trace(string msg) {
@@ -1290,16 +1338,6 @@ bool IsNullOrMissing(CJAVal& obj, string key) {
 
 bool IsPendingOrder(int orderType) {
     return (orderType == OP_BUYLIMIT || orderType == OP_BUYSTOP || orderType == OP_SELLLIMIT || orderType == OP_SELLSTOP);
-}
-
-bool ArrayContains(CJAVal& arr, string val) {
-    for (int i = arr.Size() - 1; i >= 0; --i) {
-        string curVal = arr[i].ToStr();
-        if (val == curVal) {
-            return true;
-        }
-    }
-    return false;
 }
 
 bool GetDefault(CJAVal& obj, string key, bool defaultVal) {
