@@ -19,9 +19,5 @@ Typical client request cycle:
 It is recommended to use one of the client connector libraries to abstract away these details.
 See TODO
 
-## API
-
-See [API docs](docs/api.md) for a full description of functions, request and return types. 
-
 ## Development
 See [dev docs](docs/dev.md) for details on setting up a local dev environment.

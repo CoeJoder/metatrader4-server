@@ -8,12 +8,10 @@ If the action completed with caveats, the response will contain a `warning` prop
 If the action failed, the response will contain one or more of the following properties: `error_code`, `error_code_description`, `error_message`.
 See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes).
 
-# Actions
+# User Account
 
-## User Account
-
-- ### GET_ACCOUNT_INFO
-  Get static information about the account.
+### GET_ACCOUNT_INFO
+Get static information about the account.
   
   #### Example
   ```json
@@ -34,8 +32,8 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   }
   ```
 
-- ### GET_ACCOUNT_INFO_INTEGER
-  Get an integer property of the account (see [AccountInfoInteger](https://docs.mql4.com/account/accountinfointeger)).
+### GET_ACCOUNT_INFO_INTEGER
+Get an integer property of the account (see [AccountInfoInteger](https://docs.mql4.com/account/accountinfointeger)).
   
   #### Parameters
   - `property_name` - the [ENUM_ACCOUNT_INFO_INTEGER](https://docs.mql4.com/constants/environment_state/accountinformation#enum_account_info_integer) to lookup
@@ -54,8 +52,8 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   }
   ```
 
-- ### GET_ACCOUNT_INFO_DOUBLE
-  Get a double property of the account (see [AccountInfoDouble](https://docs.mql4.com/account/accountinfodouble)).
+### GET_ACCOUNT_INFO_DOUBLE
+Get a double property of the account (see [AccountInfoDouble](https://docs.mql4.com/account/accountinfodouble)).
   
   #### Parameters
   - `property_name` - the [ENUM_ACCOUNT_INFO_DOUBLE](https://docs.mql4.com/constants/environment_state/accountinformation#enum_account_info_double) property to lookup
@@ -73,95 +71,11 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
     "response": 5000.0
   }
   ```
-## Market
 
-- ### GET_SYMBOL_INFO
-  Get static information about the given symbol.
-  
-  #### Parameters
-  - `symbol` - the market symbol
-  
-  #### Example
-  ```json
-  {
-    "action": "GET_SYMBOL_INFO",
-    "symbol": "EURUSD"
-  }
-  ```
-  #### Response
-  ```json
-  {
-    "response": {
-      "digits": 5,
-      "freeze_level": 0.0,
-      "lot_size": 100000.0,
-      "lot_step": 0.01,
-      "margin_hedged": 0.0,
-      "margin_init": 0.0,
-      "margin_maintenance": 0.0,
-      "margin_required": 1128.88,
-      "max_lot": 1000.0,
-      "min_lot": 0.01,
-      "name": "EURUSD",
-      "point_size": 1e-05,
-      "stop_level": 0.0,
-      "tick_size": 1e-05,
-      "tick_value": 1.0
-    } 
-  }
-  
-  ```
+# Market
 
-- ### GET_SYMBOL_MARKET_INFO
-  Get market information about the given symbol.
-  
-  #### Parameters
-  - `symbol` - the market symbol
-  - `property` - the [symbol property](https://docs.mql4.com/constants/environment_state/marketinfoconstants) to lookup
-  
-  #### Example
-  ```json
-  {
-    "action": "GET_SYMBOL_MARKET_INFO",
-    "symbol": "EURUSD",
-    "property": "MODE_BID"
-  }
-  ```
-  #### Response
-  ```json
-  {
-    "response": 1.13006
-  }
-  ```
-
-- ### GET_SYMBOL_TICK
-  Get the current prices of the given symbol (see [SymbolInfoTick](https://docs.mql4.com/marketinformation/symbolinfotick)).
-  
-  #### Parameters
-  - `symbol` - the market symbol
-  
-  #### Example
-  ```json
-  {
-    "action": "GET_SYMBOL_TICK",
-    "symbol": "EURUSD"
-  }
-  ```
-  #### Response
-  ```json
-  {
-    "response": {
-      "ask": 1.13346,
-      "bid": 1.13338,
-      "last": 0.0,
-      "time": 1591744136,
-      "volume": 0
-    } 
-  }
-  ```
-
-- ### GET_SYMBOLS
-  Get a list of all market symbols available for trading.
+### GET_SYMBOLS
+Get a list of all market symbols available for trading.
   
   #### Example
   ```json
@@ -186,8 +100,114 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   }
   ```
 
-- ### GET_OHLCV
-  Get the most recent OHLCV bars for the given symbol.
+### GET_SYMBOL_INFO
+Get static information about the given market symbols.
+  
+  #### Parameters
+  - `names` - a list of symbol names
+  
+  #### Example
+  ```json
+  {
+    "action": "GET_SYMBOL_INFO",
+    "names": [
+      "EURUSD",
+      "USDJPY"
+    ]
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "response": {
+      "EURUSD": {
+        "digits": 5,
+        "freeze_level": 0.0,
+        "lot_size": 100000.0,
+        "lot_step": 0.01,
+        "margin_hedged": 0.0,
+        "margin_init": 0.0,
+        "margin_maintenance": 0.0,
+        "margin_required": 1177.34,
+        "max_lot": 1000.0,
+        "min_lot": 0.01,
+        "name": "EURUSD",
+        "point_size": 1e-05,
+        "stop_level": 0.0,
+        "tick_size": 1e-05,
+        "tick_value": 1.0
+      },
+      "USDJPY": {
+        "digits": 3,
+        "freeze_level": 0.0,
+        "lot_size": 100000.0,
+        "lot_step": 0.01,
+        "margin_hedged": 0.0,
+        "margin_init": 0.0,
+        "margin_maintenance": 0.0,
+        "margin_required": 1000.0,
+        "max_lot": 1000.0,
+        "min_lot": 0.01,
+        "name": "USDJPY",
+        "point_size": 0.001,
+        "stop_level": 0.0,
+        "tick_size": 0.001,
+        "tick_value": 0.94401072
+      }
+    }
+  }
+  ```
+
+### GET_SYMBOL_MARKET_INFO
+Get market information about the given symbol.
+  
+  #### Parameters
+  - `symbol` - the market symbol
+  - `property` - the [symbol property](https://docs.mql4.com/constants/environment_state/marketinfoconstants) to lookup
+  
+  #### Example
+  ```json
+  {
+    "action": "GET_SYMBOL_MARKET_INFO",
+    "symbol": "EURUSD",
+    "property": "MODE_BID"
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "response": 1.13006
+  }
+  ```
+
+### GET_SYMBOL_TICK
+Get the current prices of the given symbol (see [SymbolInfoTick](https://docs.mql4.com/marketinformation/symbolinfotick)).
+  
+  #### Parameters
+  - `symbol` - the market symbol
+  
+  #### Example
+  ```json
+  {
+    "action": "GET_SYMBOL_TICK",
+    "symbol": "EURUSD"
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "response": {
+      "ask": 1.13346,
+      "bid": 1.13338,
+      "last": 0.0,
+      "time": 1591744136,
+      "volume": 0
+    } 
+  }
+  ```
+
+### GET_OHLCV
+Get the most recent OHLCV bars for the given symbol.
   
   #### Parameters
   - `symbol` - the market symbol
@@ -231,8 +251,8 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   }
   ```
 
-- ### GET_SIGNALS
-  Get a list of all trade signals available in the terminal.
+### GET_SIGNALS
+Get a list of all trade signals available in the terminal.
   
   #### Example
   ```json
@@ -254,8 +274,8 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   }
   ```
 
-- ### GET_SIGNAL_INFO
-  Get detailed information on one or more trading signals.
+### GET_SIGNAL_INFO
+Get detailed information on one or more trading signals.
 
   #### Parameters
   - `names` - a list of signal names
@@ -305,10 +325,36 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   }
   ```
 
-## Trading
+### RUN_INDICATOR
+Run one of the built-in [technical indicator functions](https://docs.mql4.com/indicators).
+If data is requested that is not already loaded in the terminal, it must be loaded from the broker server, which is why
+a timeout must be specified.  
+  
+  #### Parameters
+  - `indicator` - the name of the indicator function
+  - `argv` - a list of indicator function parameters
+  - `timeout` - the timeout in milliseconds
+  
+  #### Example
+  ```json
+  {
+    "action": "RUN_INDICATOR",
+    "indicator": "iAC",
+    "argv": ["EURUSD", 60, 1],
+    "timeout": 5000
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "response": 2.251e-05
+  }
+  ```
 
-- ### GET_ORDER
-  Lookup an open, pending, or closed order using its ticket number.
+# Trading
+
+### GET_ORDER
+Lookup an open, pending, or closed order using its ticket number.
   
   #### Parameters
   - `ticket` - the ticket number of the order
@@ -344,8 +390,8 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   }
   ```
 
-- ### GET_ORDERS
-  Lookup all market and pending orders.
+### GET_ORDERS
+Lookup all market and pending orders.
   
   #### Example
   ```json
@@ -382,8 +428,8 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   }
   ```
 
-- ### GET_HISTORICAL_ORDERS
-  Lookup all closed orders loaded in the "Account History" tab of the MT4 terminal.
+### GET_HISTORICAL_ORDERS
+Lookup all closed orders loaded in the "Account History" tab of the MT4 terminal.
   
   #### Example
   ```json
@@ -421,12 +467,12 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   }
   ```
 
-- ### DO_ORDER_SEND
-  Open a market order or place a pending order.
-  This action is more than just a wrapper around the [OrderSend()](https://docs.mql4.com/trading/ordersend) function.
-  If stop-loss or take-profit params are specified, the order is opened with the given price and then modified with those values (in order to comply with the ECN trading protocol).
-  If the values violate the [trading requirements and limitations](https://book.mql4.com/appendix/limits), they are nudged the minimum amount to allow the modification to take place.
-  The resulting order is returned.
+### DO_ORDER_SEND
+Open a market order or place a pending order.
+This action is more than just a wrapper around the [OrderSend()](https://docs.mql4.com/trading/ordersend) function.
+If stop-loss or take-profit params are specified, the order is opened with the given price and then modified with those values (in order to comply with the ECN trading protocol).
+If the values violate the [trading requirements and limitations](https://book.mql4.com/appendix/limits), they are nudged the minimum amount to allow the modification to take place.
+The resulting order is returned.
   
   #### Parameters
   - `symbol` - the market symbol
@@ -476,11 +522,14 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   }
   ```
 
-- ### DO_ORDER_CLOSE
-  Close an opened order.
+### DO_ORDER_CLOSE
+Close an opened order.
   
   #### Parameters
   - `ticket` - the ticket number of the order
+  - `lots` - the number of lots.  Omit to close entire order
+  - `price` - the closing price.  Omit to close at market price
+  - `slippage` - the maximum price slippage, in points.  Omit to use a permissive default (2x the market spread)
   
   #### Example
   ```json
@@ -496,8 +545,8 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   }
   ```
 
-- ### DO_ORDER_DELETE
-  Delete a pending order.  If the order is open (no longer pending), it is closed at the current market price.
+### DO_ORDER_DELETE
+Delete a pending order.  If the order is already open, it is closed at market price.
   
   #### Parameters
   - `ticket` - the ticket number of the order
@@ -516,8 +565,8 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
   }
   ```
 
-- ### DO_ORDER_MODIFY
-  Modify a previously opened or pending order.
+### DO_ORDER_MODIFY
+Modify a previously opened or pending order.
   
   #### Parameters
   - `ticket` - the ticket number of the order
@@ -556,32 +605,5 @@ See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes
       "ticket": 124114600,
       "tp": 0.0
     }
-  }
-  ```
-
-- ### RUN_INDICATOR
-  Run one of the built-in [technical indicator functions](https://docs.mql4.com/indicators).
-  If data is requested that is not already loaded in the terminal, it must be loaded from the broker server, which is why
-  a timeout must be specified.
-  
-  
-  #### Parameters
-  - `indicator` - the name of the indicator function
-  - `argv` - a list of indicator function parameters
-  - `timeout` - the timeout in milliseconds
-  
-  #### Example
-  ```json
-  {
-    "action": "RUN_INDICATOR",
-    "indicator": "iAC",
-    "argv": ["EURUSD", 60, 1],
-    "timeout": 5000
-  }
-  ```
-  #### Response
-  ```json
-  {
-    "response": 2.251e-05
   }
   ```
