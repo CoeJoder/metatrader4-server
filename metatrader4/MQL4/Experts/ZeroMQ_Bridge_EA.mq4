@@ -812,6 +812,16 @@ void Do_OrderModify(CJAVal& req) {
     }
     int ticket = (int)req["ticket"].ToInt();
 
+    // stop-loss and take-profit params must be either relative or absolute, but not both
+    if (!IsNullOrMissing(req, "sl") && !IsNullOrMissing(req, "sl_points")) {
+        sendError("Stop-loss cannot be both relative (sl_points) and absolute (sl).  Specify one or the other.");
+        return;
+    }
+    if (!IsNullOrMissing(req, "tp") && !IsNullOrMissing(req, "tp_points")) {
+        sendError("Take-profit cannot be both relative (tp_points) and absolute (tp).  Specify one or the other.");
+        return;
+    }
+
     if (!OrderSelect(ticket, SELECT_BY_TICKET, MODE_TRADES)) {
         sendError(StringFormat("Order # %d not found.", ticket));
         return;
@@ -1094,18 +1104,16 @@ void Do_OrderDelete(CJAVal& req) {
         if (!OrderDelete(ticket)) {
             // failure
             int errorCode = GetLastError();
-            if (errorCode == ERR_INVALID_TICKET) {
-                // check if pending order became opened
-                if (closeIfOpened && !IsPendingOrder(OrderType())) {
-                    // attempt to close at market price
-                    req["lots"] = OrderLots();
-                    req["price"] = DefaultClosePrice(OrderSymbol(), OrderType());
-                    req["slippage"] = DefaultSlippage(OrderSymbol());
-                    Do_OrderClose(req);
-                    return;
-                }
+            // check if order is open and closing is requested
+            if (errorCode == ERR_INVALID_TICKET && !IsPendingOrder(OrderType()) && closeIfOpened) {
+                // attempt to close at market price
+                req["lots"] = OrderLots();
+                req["price"] = DefaultClosePrice(OrderSymbol(), OrderType());
+                req["slippage"] = DefaultSlippage(OrderSymbol());
+                Do_OrderClose(req);
+                return;
             }
-            sendError(errorCode, StringFormat("Failed to delete pending order # %d.", ticket));
+            sendError(errorCode, StringFormat("Failed to delete order # %d.", ticket));
             return;
         }
         else {
