@@ -1083,6 +1083,7 @@ void Do_OrderDelete(CJAVal& req) {
         return;
     }
     int ticket = (int)req["ticket"].ToInt();
+    bool closeIfOpened = GetDefault(req, "closeIfOpened", false);
 
     if (!OrderSelect(ticket, SELECT_BY_TICKET, MODE_TRADES)) {
         sendError(StringFormat("Order # %d not found.", ticket));
@@ -1095,7 +1096,7 @@ void Do_OrderDelete(CJAVal& req) {
             int errorCode = GetLastError();
             if (errorCode == ERR_INVALID_TICKET) {
                 // check if pending order became opened
-                if (OrderType() == OP_BUY || OrderType() == OP_SELL) {
+                if (closeIfOpened && !IsPendingOrder(OrderType())) {
                     // attempt to close at market price
                     req["lots"] = OrderLots();
                     req["price"] = DefaultClosePrice(OrderSymbol(), OrderType());

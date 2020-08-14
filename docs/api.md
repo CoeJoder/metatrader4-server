@@ -546,10 +546,11 @@ Close an opened order.
   ```
 
 ### DO_ORDER_DELETE
-Delete a pending order.  If the order is already open, it is closed at market price.
+Delete a pending order.
   
   #### Parameters
   - `ticket` - the ticket number of the order
+  - `closeIfOpened` - if true and the order is open, it is closed at market price. Defaults to `false`.
   
   #### Example
   ```json
