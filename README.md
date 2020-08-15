@@ -21,4 +21,5 @@ It is recommended to use one of the following client libraries to abstract away 
 - MetaTrader 4 Java Client (coming soon)
 
 ## Development
-See [dev docs](docs/dev.md) for details on setting up a local dev environment.
+If you want to make changes to the server endpoints, it's useful to setup a local dev environment.  See 
+[dev docs](docs/dev.md) for details.
