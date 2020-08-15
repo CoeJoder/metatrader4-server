@@ -1,5 +1,5 @@
 # MetaTrader 4 Server
-Provides a remote interface and high-level API for MetaTrader 4.
+Provides a remote interface and high-level API for MetaTrader 4 via ZeroMQ sockets.
 
 ![Diagram 1](diagram_1.png)
 
