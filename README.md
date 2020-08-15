@@ -1,5 +1,5 @@
-# MetaTrader 4 -- ZeroMQ bridge
-Provides a high-level trading interface to MetaTrader 4 via ZeroMQ sockets.
+# MetaTrader 4 Server
+Provides a remote interface and high-level API for MetaTrader 4.
 
 ![Diagram 1](diagram_1.png)
 
@@ -16,8 +16,9 @@ Typical client request cycle:
   1. Send it to the PUSH socket.
   1. Poll the PULL socket until a response is received or an exception is thrown.
 
-It is recommended to use one of the client connector libraries to abstract away these details.
-See TODO
+It is recommended to use one of the following client libraries to abstract away these details:
+- [MetaTrader 4 Python Client](https://github.com/CoeJoder/metatrader4-client-python)
+- MetaTrader 4 Java Client (coming soon)
 
 ## Development
 See [dev docs](docs/dev.md) for details on setting up a local dev environment.
