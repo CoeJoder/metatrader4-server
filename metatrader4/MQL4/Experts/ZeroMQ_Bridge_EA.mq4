@@ -1,6 +1,6 @@
 #property description   "An endpoint for remote control of MetaTrader 4 via ZeroMQ push/pull sockets."
 #property copyright     "Copyright 2020, CoeJoder"
-#property link          "https://github.com/CoeJoder/mt4-zeromq-bridge"
+#property link          "https://github.com/CoeJoder/metatrader4-server"
 #property version       "1.0"
 #property strict
 
