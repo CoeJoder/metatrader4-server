@@ -16,8 +16,8 @@
 extern string EA_NAME = "ZeroMQ_Bridge_EA";
 extern string PROTOCOL = "tcp";
 extern string LOCAL_ADDRESS = "*";
-extern int PUSH_PORT = 28281;
-extern int PULL_PORT = 28282;
+extern int PULL_PORT = 28281;
+extern int PUSH_PORT = 28282;
 extern int POLLING_INTERVAL = 1;
 extern int MIN_POINT_DISTANCE = 3;
 extern bool VERBOSE = true;
@@ -116,13 +116,13 @@ int OnInit() {
 
     pullSocket.setReceiveHighWaterMark(1);
     pullSocket.setLinger(0);
-    pullSocket.bind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PUSH_PORT));
-    Print(StringFormat("Listening for requests on %s port %d", PROTOCOL, PUSH_PORT));
+    pullSocket.bind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PULL_PORT));
+    Print(StringFormat("Listening for requests on %s port %d", PROTOCOL, PULL_PORT));
 
     pushSocket.setSendHighWaterMark(1);
     pushSocket.setLinger(0);
-    pushSocket.bind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PULL_PORT));
-    Print(StringFormat("Sending responses to %s port %d", PROTOCOL, PULL_PORT));
+    pushSocket.bind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PUSH_PORT));
+    Print(StringFormat("Sending responses to %s port %d", PROTOCOL, PUSH_PORT));
 
     // start polling for requests on the event loop
     EventSetMillisecondTimer(POLLING_INTERVAL);
@@ -137,10 +137,10 @@ void OnDeinit(const int reason) {
     }
 
     Print("Unbinding ZeroMQ sockets...");
-    pushSocket.unbind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PULL_PORT));
-    pushSocket.disconnect(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PULL_PORT));
-    pullSocket.unbind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PUSH_PORT));
-    pullSocket.disconnect(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PUSH_PORT));
+    pushSocket.unbind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PUSH_PORT));
+    pushSocket.disconnect(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PUSH_PORT));
+    pullSocket.unbind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PULL_PORT));
+    pullSocket.disconnect(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PULL_PORT));
 
     // destroy ZeroMQ context
     context.destroy(0);
