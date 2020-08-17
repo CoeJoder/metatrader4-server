@@ -138,9 +138,7 @@ void OnDeinit(const int reason) {
 
     Print("Unbinding ZeroMQ sockets...");
     pushSocket.unbind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PUSH_PORT));
-    pushSocket.disconnect(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PUSH_PORT));
     pullSocket.unbind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PULL_PORT));
-    pullSocket.disconnect(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PULL_PORT));
 
     // destroy ZeroMQ context
     context.destroy(0);

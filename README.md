@@ -20,12 +20,12 @@ The client `PULL` socket connects to the server `PUSH` port (default: TCP 28282)
 Typical client request cycle:
 
   1. Construct an [API](docs/api.md) request.
-  1. Send it to the local PUSH socket.
-  1. Poll the local PULL socket until a response is received.
+  1. Send it to the local `PUSH` socket.
+  1. Poll the local `PULL` socket until a response is received.
 
 It is recommended to use one of the following client libraries to abstract away these details:
-- [Python 3 Client](https://github.com/CoeJoder/metatrader4-client-python)
-- Java Client (coming soon)
+- [Python client](https://github.com/CoeJoder/metatrader4-client-python)
+- Java client (coming soon)
 
 ## Development
 If you want to make changes to the server endpoints, it's useful to setup a local dev environment.  See 
