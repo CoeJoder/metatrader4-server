@@ -1,18 +1,19 @@
 #!/bin/bash
 
 ## title:         remote_deploy.sh
-## description:   A dev script for deploying & compiling the `ZeroMQ Bridge EA` and its dependencies from a
+## description:   A dev script for deploying & compiling the `ZeroMQ Server` script and its dependencies from a
 ##                local dev environment into a remote MetaTrader 4 instance via SSH.
 ## precondition:  Deployment target is a Windows 10 instance which has MT4 (32-bit) installed, and
 ##                WSL (Windows Subsystem for Linux) installed which is running a SSH server. The client machine running
 ##                this script should have SSH master connections enabled to prevent excessive handshakes.
-## postcondition: MetaTrader 4 will have the latest bridge and should be restarted to apply it (see restart_mt4.bat).
+## postcondition: MetaTrader 4 will have the latest server script and should be restarted to apply it
+##                (see restart_mt4.bat).
 ##
 ## configurable variables:
 ## ----------------------------------------------------------------------------
 
 # the EA filename
-EA_FILENAME='ZeroMQ_Bridge_EA.mq4'
+SCRIPT_FILENAME='ZeroMQ_Server.mq4'
 
 # the SSH endpoint of the deployment target
 SSH_ENDPOINT='joe@win10'
@@ -31,7 +32,7 @@ function closeAndExit() {
   exit $1
 }
 
-echo "Deploying \"$EA_FILENAME\"..."
+echo "Deploying \"$SCRIPT_FILENAME\"..."
 
 # start master connection
 ssh -Nf "$SSH_ENDPOINT"
@@ -64,7 +65,7 @@ if [ -n "$MT4_HOME" ]; then
   if ssh "$SSH_ENDPOINT" "
     rm \"$WSL_COMPILER_LOG\" &> /dev/null
     cd \"$WSL_MT4_HOME\"
-    ./metaeditor.exe /log:\"$WIN_COMPILER_LOG\" /compile:\"$MT4_PROFILE\\MQL4\\Experts\\$EA_FILENAME\"
+    ./metaeditor.exe /log:\"$WIN_COMPILER_LOG\" /compile:\"$MT4_PROFILE\\MQL4\\Scripts\\$SCRIPT_FILENAME\"
     [ ! -f \"$WSL_COMPILER_LOG\" ]"; then
     echo "[ERROR] Compiler log not found."
     closeAndExit 1

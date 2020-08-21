@@ -3,21 +3,19 @@
 #property link          "https://github.com/CoeJoder/metatrader4-server"
 #property version       "1.0"
 #property strict
+#property show_inputs
 
 #include <stdlib.mqh>
-
 // see: https://github.com/dingmaotu/mql-zmq
 #include <Zmq/Zmq.mqh>
-
 // see: https://www.mql5.com/en/code/13663
 #include <json/JAson.mqh>
 
 // input parameters
-extern string EA_NAME = "ZeroMQ_Bridge_EA";
-extern string PROTOCOL = "tcp";
-extern string LOCAL_ADDRESS = "*";
-extern int ROUTER_PORT = 28283;
-extern int POLLING_INTERVAL = 1000;
+extern string SCRIPT_NAME = "ZeroMQ_Server";
+extern string ADDRESS = "tcp://*:28282";
+extern int REQUEST_POLLING_INTERVAL = 500;
+extern int RESPONSE_TIMEOUT = 5000;
 extern int MIN_POINT_DISTANCE = 3;
 extern bool VERBOSE = true;
 
@@ -91,75 +89,95 @@ enum Indicator {
     iWPR
 };
 
-// a REQ->ROUTER received request with REQ option ZMQ_REQ_CORRELATE=1
-struct RequestEnvelope {
-    public:
-       string clientId;
-       string messageId;
-       string body;
-};
-RequestEnvelope envelope;
-
 // ZeroMQ sockets
 Context* context = NULL;
-Socket* routerSocket = NULL;
+Socket* socket = NULL;
 
 int OnInit() {
+    ENUM_INIT_RETCODE retcode = INIT_SUCCEEDED;
 
-    // workaround for OnInit() being called twice when EA is attached via .ini at terminal startup
-    if (context != NULL) {
-        Trace("Already initialized. Skipping...");
-        return (INIT_SUCCEEDED);
+    // workaround for OnInit() being called twice when script is attached via .ini at terminal startup
+    if (context == NULL) {
+        // ZeroMQ context and sockets
+        context = new Context(SCRIPT_NAME);
+        context.setBlocky(false);
+        socket = new Socket(context, ZMQ_REP);
+        socket.setSendHighWaterMark(1);
+        socket.setReceiveHighWaterMark(1);
+        socket.setSendTimeout(RESPONSE_TIMEOUT);
+        if (!socket.bind(ADDRESS)) {
+            Alert(StringFormat("Failed to bind socket on %s: %s", ADDRESS, Zmq::errorMessage(Zmq::errorNumber())));
+            retcode = INIT_FAILED;
+        }
+        else {
+            Print(StringFormat("Listening for requests on %s", ADDRESS));
+        }
     }
-
-    // ZeroMQ context and sockets
-    context = new Context(EA_NAME);
-    routerSocket = new Socket(context, ZMQ_ROUTER);
-    context.setBlocky(false);
-
-    routerSocket.setSendHighWaterMark(1);
-    routerSocket.setLinger(0);
-    routerSocket.bind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, ROUTER_PORT));
-    Print(StringFormat("Listening on %s port %d", PROTOCOL, ROUTER_PORT));
-
-    // start polling for requests on the event loop
-    EventSetMillisecondTimer(POLLING_INTERVAL);
-
-    return(INIT_SUCCEEDED);
+    return retcode;
 }
 
 void OnDeinit(const int reason) {
-    if (context == NULL) {
-        Trace("Already de-initialized. Skipping...");
-        return;
+    if (context != NULL) {
+        Print("Unbinding listening socket...");
+        socket.unbind(ADDRESS);
+
+        // destroy ZeroMQ context
+        context.destroy(0);
+
+        // deallocate ZeroMQ objects
+        delete socket;
+        delete context;
+        socket = NULL;
+        context = NULL;
     }
-
-    Print("Unbinding ZeroMQ sockets...");
-    routerSocket.unbind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, ROUTER_PORT));
-
-    // destroy ZeroMQ context
-    context.destroy(0);
-
-    // deallocate ZeroMQ objects
-    delete routerSocket;
-    delete context;
-    routerSocket = NULL;
-    context = NULL;
-
-    // stop polling for client requests
-    EventKillTimer();
 }
 
-void OnTimer() {
-    if (!MultiPartReceive()) {
-        Print("Failed to receive malformed request.");
-        return;
+void OnStart() {
+    PollItem poller[1];
+    socket.fillPollItem(poller[0], ZMQ_POLLIN);
+    ZmqMsg inMessage;
+    while (IsRunning()) {
+        if (-1 == Socket::poll(poller, REQUEST_POLLING_INTERVAL)) {
+            Print("Failed input polling: " + Zmq::errorMessage(Zmq::errorNumber()));
+        }
+        else if (poller[0].hasInput()) {
+            if (_socketReceive(inMessage, true)) {
+                if (inMessage.size() > 0) {
+                    string dataStr = inMessage.getData();
+                    Trace("Received request: " + dataStr);
+                    // responsible for sending response
+                    _processRequest(dataStr);
+                }
+                else {
+                    sendError("Request was empty.");
+                }
+            }
+        }
     }
-    Trace("Request received: " + envelope.body);
+}
 
+bool _socketReceive(ZmqMsg& msg, bool nowait=false) {
+    bool success = true;
+    if (!socket.recv(msg, nowait)) {
+        Print("Failed to receive request.");
+        success = false;
+    }
+    return success;
+}
+
+bool _socketSend(string response=NULL, bool nowait=false) {
+    bool success = true;
+    if ((response == NULL && !socket.send(nowait)) || (response != NULL && !socket.send(response, nowait))) {
+        Alert("Critical error!  Failed to send response to client: " + Zmq::errorMessage(Zmq::errorNumber()));
+        success = false;
+    }
+    return success;
+}
+
+void _processRequest(string dataStr) {
     // parse JSON request
     CJAVal req;
-    if (!req.Deserialize(envelope.body, CP_UTF8)) {
+    if (!req.Deserialize(dataStr, CP_UTF8)) {
         sendError("Failed to parse request.");
         return;
     }
@@ -237,8 +255,8 @@ void OnTimer() {
 
 void _serializeAndSendResponse(CJAVal& resp) {
     string strResp = resp.Serialize();
-    if (MultiPartSend(strResp)) {
-        Trace("Response sent: " + strResp);
+    if (_socketSend(strResp)) {
+        Trace("Sent response: " + strResp);
     }
 }
 
@@ -1374,59 +1392,6 @@ string GetDefault(CJAVal& obj, string key, string defaultVal) {
     return defaultVal;
 }
 
-// receives a multi-part message
-bool MultiPartReceive() {
-    envelope.clientId = NULL;
-    envelope.messageId = NULL;
-    envelope.body = NULL;
-    ZmqMsg frame;
-    if (_socketReceive(frame)) {
-        // frame 0: client ID
-        envelope.clientId = frame.getData();
-        Trace(StringFormat("[Request clientId = %s]", envelope.clientId));
-        if (frame.more() && _socketReceive(frame)) {
-            // frame 1: message ID
-            envelope.messageId = frame.getData();
-            Trace(StringFormat("[Request messageId = %s]", envelope.messageId));
-            if (frame.more() && _socketReceive(frame) && frame.size() == 0) {
-                // frame 2: (empty)
-                Trace("[Request (empty)]");
-                // the next frames (if any) are the message body
-                // save the first frame, discard the rest
-                for (int i = 0; frame.more() && _socketReceive(frame); i++) {
-                    string data = frame.getData();
-                    if (i == 0) {
-                        // frame 3: body
-                        envelope.body = data;
-                        success = true;
-                    }
-                    Trace(StringFormat("[Request body[%d] = %s]", i, data));
-                }
-            }
-        }
-    }
-    return success;
+bool IsRunning() {
+    return !IsStopped() && context != NULL;
 }
-
-bool _socketReceive(ZmqMsg& frame) {
-    if (!routerSocket.recv(frame)) {
-        Print("Socket receive failure: " + Zmq::errorMessage(Zmq::errorNumber()));
-        return false;
-    }
-    return true;
-}
-
-// sends a multi-part message
-bool MultiPartSend(string body) {
-    if (routerSocket.sendMore(envelope.clientId)
-        && routerSocket.sendMore(envelope.messageId)
-        && routerSocket.sendMore()
-        && routerSocket.send(body)) {
-        return true;
-    }
-    else {
-        Print("Socket send failure: " + Zmq::errorMessage(Zmq::errorNumber()));
-        return false;
-    }
-}
-
