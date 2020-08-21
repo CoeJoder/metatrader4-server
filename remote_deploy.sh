@@ -12,7 +12,7 @@
 ## configurable variables:
 ## ----------------------------------------------------------------------------
 
-# the EA filename
+# the server script filename
 SCRIPT_FILENAME='ZeroMQ_Server.mq4'
 
 # the SSH endpoint of the deployment target
@@ -21,7 +21,7 @@ SSH_ENDPOINT='joe@win10'
 # the remote MT4 profile location
 MT4_PROFILE='C:\Users\Joe\AppData\Roaming\MetaQuotes\Terminal\977DAA59FB4CDBA569AB3A0248922121'
 
-# the remote MT4 install location (comment-out to skip compilation)
+# the remote MT4 install location
 MT4_HOME='C:\Program Files (x86)\JAFX MetaTrader 4'
 
 ## ----------------------------------------------------------------------------
@@ -51,29 +51,24 @@ fi
 
 rsync -avh "$SCRIPT_DIR/mql-zmq/Include/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Include/\""
 rsync -avh "$SCRIPT_DIR/mql-zmq/Library/MT4/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Libraries/\""
-rsync -avh --exclude "MQL4/Include/json/README.md" --exclude "config/zeromq_bridge_startup.template.ini" "$SCRIPT_DIR/metatrader4/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/\""
+rsync -avh --exclude "MQL4/Include/json/README.md" --exclude "config/zeromq_server_startup.template.ini" "$SCRIPT_DIR/metatrader4/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/\""
 
-# compile the bridge if a path to the compiler was provided
-if [ -n "$MT4_HOME" ]; then
-
-  if ssh "$SSH_ENDPOINT" "[ ! -f \"$WSL_MT4_HOME/metaeditor.exe\" ]"; then
-    echo "[WARNING] The MQL4 compiler was not found.  Skipping compilation..."
-    closeAndExit 1
-  fi
-
-  echo -e "\nCompiling..."
-  if ssh "$SSH_ENDPOINT" "
-    rm \"$WSL_COMPILER_LOG\" &> /dev/null
-    cd \"$WSL_MT4_HOME\"
-    ./metaeditor.exe /log:\"$WIN_COMPILER_LOG\" /compile:\"$MT4_PROFILE\\MQL4\\Scripts\\$SCRIPT_FILENAME\"
-    [ ! -f \"$WSL_COMPILER_LOG\" ]"; then
-    echo "[ERROR] Compiler log not found."
-    closeAndExit 1
-  fi
-
-  # convert log to UTF-8 and direct any warnings/errors to local STDOUT
-  ssh "$SSH_ENDPOINT" "iconv -f utf-16 -t utf-8 \"$WSL_COMPILER_LOG\"" | grep -E --color=auto "warning|error"
-else
-  echo -e "\nCompilation skipped."
+# compile the server script
+if ssh "$SSH_ENDPOINT" "[ ! -f \"$WSL_MT4_HOME/metaeditor.exe\" ]"; then
+  echo "[WARNING] The MQL4 compiler was not found.  Skipping compilation..."
+  closeAndExit 1
 fi
+
+echo -e "\nCompiling..."
+if ssh "$SSH_ENDPOINT" "
+  rm \"$WSL_COMPILER_LOG\" &> /dev/null
+  cd \"$WSL_MT4_HOME\"
+  ./metaeditor.exe /log:\"$WIN_COMPILER_LOG\" /compile:\"$MT4_PROFILE\\MQL4\\Scripts\\$SCRIPT_FILENAME\"
+  [ ! -f \"$WSL_COMPILER_LOG\" ]"; then
+  echo "[ERROR] Compiler log not found."
+  closeAndExit 1
+fi
+
+# convert log to UTF-8 and direct any warnings/errors to local STDOUT
+ssh "$SSH_ENDPOINT" "iconv -f utf-16 -t utf-8 \"$WSL_COMPILER_LOG\"" | grep -E --color=auto "warning|error"
 closeAndExit 0
