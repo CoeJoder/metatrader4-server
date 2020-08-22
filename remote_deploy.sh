@@ -1,18 +1,19 @@
 #!/bin/bash
 
 ## title:         remote_deploy.sh
-## description:   A dev script for deploying & compiling the `ZeroMQ Bridge EA` and its dependencies from a
+## description:   A dev script for deploying & compiling the `ZeroMQ Server` script and its dependencies from a
 ##                local dev environment into a remote MetaTrader 4 instance via SSH.
 ## precondition:  Deployment target is a Windows 10 instance which has MT4 (32-bit) installed, and
 ##                WSL (Windows Subsystem for Linux) installed which is running a SSH server. The client machine running
 ##                this script should have SSH master connections enabled to prevent excessive handshakes.
-## postcondition: MetaTrader 4 will have the latest bridge and should be restarted to apply it (see restart_mt4.bat).
+## postcondition: MetaTrader 4 will have the latest server script and should be restarted to apply it
+##                (see restart_mt4.bat).
 ##
 ## configurable variables:
 ## ----------------------------------------------------------------------------
 
-# the EA filename
-EA_FILENAME='ZeroMQ_Bridge_EA.mq4'
+# the server script filename
+SCRIPT_FILENAME='ZeroMQ_Server.mq4'
 
 # the SSH endpoint of the deployment target
 SSH_ENDPOINT='joe@win10'
@@ -20,7 +21,7 @@ SSH_ENDPOINT='joe@win10'
 # the remote MT4 profile location
 MT4_PROFILE='C:\Users\Joe\AppData\Roaming\MetaQuotes\Terminal\977DAA59FB4CDBA569AB3A0248922121'
 
-# the remote MT4 install location (comment-out to skip compilation)
+# the remote MT4 install location
 MT4_HOME='C:\Program Files (x86)\JAFX MetaTrader 4'
 
 ## ----------------------------------------------------------------------------
@@ -31,7 +32,7 @@ function closeAndExit() {
   exit $1
 }
 
-echo "Deploying \"$EA_FILENAME\"..."
+echo "Deploying \"$SCRIPT_FILENAME\"..."
 
 # start master connection
 ssh -Nf "$SSH_ENDPOINT"
@@ -50,29 +51,24 @@ fi
 
 rsync -avh "$SCRIPT_DIR/mql-zmq/Include/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Include/\""
 rsync -avh "$SCRIPT_DIR/mql-zmq/Library/MT4/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/MQL4/Libraries/\""
-rsync -avh --exclude "MQL4/Include/json/README.md" --exclude "config/zeromq_bridge_startup.template.ini" "$SCRIPT_DIR/metatrader4/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/\""
+rsync -avh --exclude "MQL4/Include/json/README.md" --exclude "config/zeromq_server_startup.template.ini" "$SCRIPT_DIR/metatrader4/" "$SSH_ENDPOINT:\"$WSL_MT4_PROFILE/\""
 
-# compile the bridge if a path to the compiler was provided
-if [ -n "$MT4_HOME" ]; then
-
-  if ssh "$SSH_ENDPOINT" "[ ! -f \"$WSL_MT4_HOME/metaeditor.exe\" ]"; then
-    echo "[WARNING] The MQL4 compiler was not found.  Skipping compilation..."
-    closeAndExit 1
-  fi
-
-  echo -e "\nCompiling..."
-  if ssh "$SSH_ENDPOINT" "
-    rm \"$WSL_COMPILER_LOG\" &> /dev/null
-    cd \"$WSL_MT4_HOME\"
-    ./metaeditor.exe /log:\"$WIN_COMPILER_LOG\" /compile:\"$MT4_PROFILE\\MQL4\\Experts\\$EA_FILENAME\"
-    [ ! -f \"$WSL_COMPILER_LOG\" ]"; then
-    echo "[ERROR] Compiler log not found."
-    closeAndExit 1
-  fi
-
-  # convert log to UTF-8 and direct any warnings/errors to local STDOUT
-  ssh "$SSH_ENDPOINT" "iconv -f utf-16 -t utf-8 \"$WSL_COMPILER_LOG\"" | grep -E --color=auto "warning|error"
-else
-  echo -e "\nCompilation skipped."
+# compile the server script
+if ssh "$SSH_ENDPOINT" "[ ! -f \"$WSL_MT4_HOME/metaeditor.exe\" ]"; then
+  echo "[WARNING] The MQL4 compiler was not found.  Skipping compilation..."
+  closeAndExit 1
 fi
+
+echo -e "\nCompiling..."
+if ssh "$SSH_ENDPOINT" "
+  rm \"$WSL_COMPILER_LOG\" &> /dev/null
+  cd \"$WSL_MT4_HOME\"
+  ./metaeditor.exe /log:\"$WIN_COMPILER_LOG\" /compile:\"$MT4_PROFILE\\MQL4\\Scripts\\$SCRIPT_FILENAME\"
+  [ ! -f \"$WSL_COMPILER_LOG\" ]"; then
+  echo "[ERROR] Compiler log not found."
+  closeAndExit 1
+fi
+
+# convert log to UTF-8 and direct any warnings/errors to local STDOUT
+ssh "$SSH_ENDPOINT" "iconv -f utf-16 -t utf-8 \"$WSL_COMPILER_LOG\"" | grep -E --color=auto "warning|error"
 closeAndExit 0

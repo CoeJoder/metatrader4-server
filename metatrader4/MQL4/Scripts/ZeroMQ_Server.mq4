@@ -1,24 +1,21 @@
-#property description   "An endpoint for remote control of MetaTrader 4 via ZeroMQ push/pull sockets."
+#property description   "An endpoint for remote control of MetaTrader 4 via ZeroMQ sockets."
 #property copyright     "Copyright 2020, CoeJoder"
 #property link          "https://github.com/CoeJoder/metatrader4-server"
 #property version       "1.0"
 #property strict
+#property show_inputs
 
 #include <stdlib.mqh>
-
 // see: https://github.com/dingmaotu/mql-zmq
 #include <Zmq/Zmq.mqh>
-
 // see: https://www.mql5.com/en/code/13663
 #include <json/JAson.mqh>
 
 // input parameters
-extern string EA_NAME = "ZeroMQ_Bridge_EA";
-extern string PROTOCOL = "tcp";
-extern string LOCAL_ADDRESS = "*";
-extern int PULL_PORT = 28281;
-extern int PUSH_PORT = 28282;
-extern int POLLING_INTERVAL = 1;
+extern string SCRIPT_NAME = "ZeroMQ_Server";
+extern string ADDRESS = "tcp://*:28282";
+extern int REQUEST_POLLING_INTERVAL = 500;
+extern int RESPONSE_TIMEOUT = 5000;
 extern int MIN_POINT_DISTANCE = 3;
 extern bool VERBOSE = true;
 
@@ -92,159 +89,175 @@ enum Indicator {
     iWPR
 };
 
-// request message struct
-ZmqMsg request;
-
 // ZeroMQ sockets
 Context* context = NULL;
-Socket* pushSocket = NULL;
-Socket* pullSocket = NULL;
+Socket* socket = NULL;
 
 int OnInit() {
+    ENUM_INIT_RETCODE retcode = INIT_SUCCEEDED;
 
-    // workaround for OnInit() being called twice when EA is attached via .ini at terminal startup
-    if (context != NULL) {
-        Trace("Already initialized. Skipping...");
-        return (INIT_SUCCEEDED);
+    // workaround for OnInit() being called twice when script is attached via .ini at terminal startup
+    if (context == NULL) {
+        // ZeroMQ context and sockets
+        context = new Context(SCRIPT_NAME);
+        context.setBlocky(false);
+        socket = new Socket(context, ZMQ_REP);
+        socket.setSendHighWaterMark(1);
+        socket.setReceiveHighWaterMark(1);
+        socket.setSendTimeout(RESPONSE_TIMEOUT);
+        if (!socket.bind(ADDRESS)) {
+            Alert(StringFormat("Failed to bind socket on %s: %s", ADDRESS, Zmq::errorMessage(Zmq::errorNumber())));
+            retcode = INIT_FAILED;
+        }
+        else {
+            Print(StringFormat("Listening for requests on %s", ADDRESS));
+        }
     }
-
-    // ZeroMQ context and sockets
-    context = new Context(EA_NAME);
-    pullSocket = new Socket(context, ZMQ_PULL);
-    pushSocket = new Socket(context, ZMQ_PUSH);
-    context.setBlocky(false);
-
-    pullSocket.setReceiveHighWaterMark(1);
-    pullSocket.setLinger(0);
-    pullSocket.bind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PULL_PORT));
-    Print(StringFormat("Listening for requests on %s port %d", PROTOCOL, PULL_PORT));
-
-    pushSocket.setSendHighWaterMark(1);
-    pushSocket.setLinger(0);
-    pushSocket.bind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PUSH_PORT));
-    Print(StringFormat("Sending responses to %s port %d", PROTOCOL, PUSH_PORT));
-
-    // start polling for requests on the event loop
-    EventSetMillisecondTimer(POLLING_INTERVAL);
-
-    return(INIT_SUCCEEDED);
+    return retcode;
 }
 
 void OnDeinit(const int reason) {
-    if (context == NULL) {
-        Trace("Already de-initialized. Skipping...");
-        return;
+    if (context != NULL) {
+        Print("Unbinding listening socket...");
+        socket.unbind(ADDRESS);
+
+        // destroy ZeroMQ context
+        context.destroy(0);
+
+        // deallocate ZeroMQ objects
+        delete socket;
+        delete context;
+        socket = NULL;
+        context = NULL;
     }
-
-    Print("Unbinding ZeroMQ sockets...");
-    pushSocket.unbind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PUSH_PORT));
-    pullSocket.unbind(StringFormat("%s://%s:%d", PROTOCOL, LOCAL_ADDRESS, PULL_PORT));
-
-    // destroy ZeroMQ context
-    context.destroy(0);
-
-    // deallocate ZeroMQ objects
-    delete pushSocket;
-    delete pullSocket;
-    delete context;
-    pushSocket = NULL;
-    pullSocket = NULL;
-    context = NULL;
-
-    // stop polling for client requests
-    EventKillTimer();
 }
 
-void OnTimer() {
-    pullSocket.recv(request, true);
-    if (request.size() > 0) {
-        string dataStr = request.getData();
-        Trace("Request received: " + dataStr);
-
-        // parse JSON request
-        CJAVal req;
-        if (!req.Deserialize(dataStr, CP_UTF8)) {
-            sendError("Failed to parse request.");
-            return;
+void OnStart() {
+    PollItem poller[1];
+    socket.fillPollItem(poller[0], ZMQ_POLLIN);
+    ZmqMsg inMessage;
+    while (IsRunning()) {
+        if (-1 == Socket::poll(poller, REQUEST_POLLING_INTERVAL)) {
+            Print("Failed input polling: " + Zmq::errorMessage(Zmq::errorNumber()));
         }
-        string actionStr = req["action"].ToStr();
-        if (actionStr == "") {
-            sendError("No request action specified.");
-            return;
-        }
-
-        // perform the action
-        RequestAction action = (RequestAction)-1;
-        switch(StringToEnum(actionStr, action)) {
-            case GET_ACCOUNT_INFO:
-                Get_AccountInfo();
-                break;
-            case GET_ACCOUNT_INFO_INTEGER:
-                Get_AccountInfoInteger(req);
-                break;
-            case GET_ACCOUNT_INFO_DOUBLE:
-                Get_AccountInfoDouble(req);
-                break;
-            case GET_SYMBOL_INFO:
-                Get_SymbolInfo(req);
-                break;
-            case GET_SYMBOL_MARKET_INFO:
-                Get_SymbolMarketInfo(req);
-                break;
-            case GET_SYMBOL_TICK:
-                Get_SymbolTick(req);
-                break;
-            case GET_ORDER:
-                Get_Order(req);
-                break;
-            case GET_ORDERS:
-                Get_Orders();
-                break;
-            case GET_HISTORICAL_ORDERS:
-                Get_HistoricalOrders();
-                break;
-            case GET_SYMBOLS:
-                Get_Symbols();
-                break;
-            case GET_OHLCV:
-                Get_OHLCV(req);
-                break;
-            case GET_SIGNALS:
-                Get_Signals();
-                break;
-            case GET_SIGNAL_INFO:
-                Get_SignalInfo(req);
-                break;
-            case DO_ORDER_SEND:
-                Do_OrderSend(req);
-                break;
-            case DO_ORDER_MODIFY:
-                Do_OrderModify(req);
-                break;
-            case DO_ORDER_CLOSE:
-                Do_OrderClose(req);
-                break;
-            case DO_ORDER_DELETE:
-                Do_OrderDelete(req);
-                break;
-            case RUN_INDICATOR:
-                Run_Indicator(req);
-                break;
-            default: {
-                string errorStr = StringFormat("Unrecognized requested action (%s).", actionStr);
-                Print(errorStr);
-                sendError(errorStr);
-                break;
+        else if (poller[0].hasInput()) {
+            if (_socketReceive(inMessage, true)) {
+                if (inMessage.size() > 0) {
+                    string dataStr = inMessage.getData();
+                    Trace("Received request: " + dataStr);
+                    // responsible for sending response
+                    _processRequest(dataStr);
+                }
+                else {
+                    sendError("Request was empty.");
+                }
             }
         }
     }
 }
 
-void _serializeAndPushResponse(CJAVal& resp) {
+bool _socketReceive(ZmqMsg& msg, bool nowait=false) {
+    bool success = true;
+    if (!socket.recv(msg, nowait)) {
+        Print("Failed to receive request.");
+        success = false;
+    }
+    return success;
+}
+
+bool _socketSend(string response=NULL, bool nowait=false) {
+    bool success = true;
+    if ((response == NULL && !socket.send(nowait)) || (response != NULL && !socket.send(response, nowait))) {
+        Alert("Critical error!  Failed to send response to client: " + Zmq::errorMessage(Zmq::errorNumber()));
+        success = false;
+    }
+    return success;
+}
+
+void _processRequest(string dataStr) {
+    // parse JSON request
+    CJAVal req;
+    if (!req.Deserialize(dataStr, CP_UTF8)) {
+        sendError("Failed to parse request.");
+        return;
+    }
+    string actionStr = req["action"].ToStr();
+    if (actionStr == "") {
+        sendError("No request action specified.");
+        return;
+    }
+
+    // perform the action
+    RequestAction action = (RequestAction)-1;
+    switch(StringToEnum(actionStr, action)) {
+        case GET_ACCOUNT_INFO:
+            Get_AccountInfo();
+            break;
+        case GET_ACCOUNT_INFO_INTEGER:
+            Get_AccountInfoInteger(req);
+            break;
+        case GET_ACCOUNT_INFO_DOUBLE:
+            Get_AccountInfoDouble(req);
+            break;
+        case GET_SYMBOL_INFO:
+            Get_SymbolInfo(req);
+            break;
+        case GET_SYMBOL_MARKET_INFO:
+            Get_SymbolMarketInfo(req);
+            break;
+        case GET_SYMBOL_TICK:
+            Get_SymbolTick(req);
+            break;
+        case GET_ORDER:
+            Get_Order(req);
+            break;
+        case GET_ORDERS:
+            Get_Orders();
+            break;
+        case GET_HISTORICAL_ORDERS:
+            Get_HistoricalOrders();
+            break;
+        case GET_SYMBOLS:
+            Get_Symbols();
+            break;
+        case GET_OHLCV:
+            Get_OHLCV(req);
+            break;
+        case GET_SIGNALS:
+            Get_Signals();
+            break;
+        case GET_SIGNAL_INFO:
+            Get_SignalInfo(req);
+            break;
+        case DO_ORDER_SEND:
+            Do_OrderSend(req);
+            break;
+        case DO_ORDER_MODIFY:
+            Do_OrderModify(req);
+            break;
+        case DO_ORDER_CLOSE:
+            Do_OrderClose(req);
+            break;
+        case DO_ORDER_DELETE:
+            Do_OrderDelete(req);
+            break;
+        case RUN_INDICATOR:
+            Run_Indicator(req);
+            break;
+        default: {
+            string errorStr = StringFormat("Unrecognized requested action (%s).", actionStr);
+            Print(errorStr);
+            sendError(errorStr);
+            break;
+        }
+    }
+}
+
+void _serializeAndSendResponse(CJAVal& resp) {
     string strResp = resp.Serialize();
-    ZmqMsg zmqResponse(strResp);
-    pushSocket.send(zmqResponse, true);
-    Trace("Response sent: " + strResp);
+    if (_socketSend(strResp)) {
+        Trace("Sent response: " + strResp);
+    }
 }
 
 void sendResponse(CJAVal& data, string warning=NULL) {
@@ -253,7 +266,7 @@ void sendResponse(CJAVal& data, string warning=NULL) {
     if (warning != NULL) {
         resp[KEY_WARNING] = warning;
     }
-    _serializeAndPushResponse(resp);
+    _serializeAndSendResponse(resp);
 }
 
 void sendResponse(string val, string warning=NULL) {
@@ -262,7 +275,7 @@ void sendResponse(string val, string warning=NULL) {
     if (warning != NULL) {
         resp[KEY_WARNING] = warning;
     }
-    _serializeAndPushResponse(resp);
+    _serializeAndSendResponse(resp);
 }
 
 void sendResponse(double val, string warning=NULL) {
@@ -271,7 +284,7 @@ void sendResponse(double val, string warning=NULL) {
     if (warning != NULL) {
         resp[KEY_WARNING] = warning;
     }
-    _serializeAndPushResponse(resp);
+    _serializeAndSendResponse(resp);
 }
 
 void sendResponse(long val, string warning=NULL) {
@@ -280,7 +293,7 @@ void sendResponse(long val, string warning=NULL) {
     if (warning != NULL) {
         resp[KEY_WARNING] = warning;
     }
-    _serializeAndPushResponse(resp);
+    _serializeAndSendResponse(resp);
 }
 
 void sendError(int code, string msg) {
@@ -288,20 +301,20 @@ void sendError(int code, string msg) {
     resp[KEY_ERROR_CODE] = code;
     resp[KEY_ERROR_CODE_DESCRIPTION] = ErrorDescription(code);
     resp[KEY_ERROR_MESSAGE] = msg;
-    _serializeAndPushResponse(resp);
+    _serializeAndSendResponse(resp);
 }
 
 void sendError(int code) {
     CJAVal resp;
     resp[KEY_ERROR_CODE] = code;
     resp[KEY_ERROR_CODE_DESCRIPTION] = ErrorDescription(code);
-    _serializeAndPushResponse(resp);
+    _serializeAndSendResponse(resp);
 }
 
 void sendError(string msg) {
     CJAVal resp;
     resp[KEY_ERROR_MESSAGE] = msg;
-    _serializeAndPushResponse(resp);
+    _serializeAndSendResponse(resp);
 }
 
 void sendErrorMissingParam(string paramName) {
@@ -1377,4 +1390,8 @@ string GetDefault(CJAVal& obj, string key, string defaultVal) {
         return obj[key].ToStr();
     }
     return defaultVal;
+}
+
+bool IsRunning() {
+    return !IsStopped() && context != NULL;
 }
