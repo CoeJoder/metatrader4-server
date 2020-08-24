@@ -27,7 +27,7 @@ Typical client usage:
 
 It is recommended to use one of the following client libraries to abstract away these details:
 - [Python client](https://github.com/CoeJoder/metatrader4-client-python)
-- Java client (coming soon)
+- [Java client](https://github.com/CoeJoder/metatrader4-client-java)
 
 ## Limitations
 The `REQ-REP` socket connection enforces a strict request-response cycle and may deadlock if connection is lost.
@@ -36,5 +36,4 @@ If a response is dropped, the client may want to catch the exception and check w
 successful.
 
 ## Development
-If you want to make changes to the server implementation, it's useful to setup a local dev environment.  See 
-[dev](docs/dev.md) for details.
+If you want to make changes to the server implementation, it's useful to setup a [local dev environment](docs/dev.md).
