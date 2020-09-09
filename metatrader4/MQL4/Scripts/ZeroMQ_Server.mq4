@@ -461,13 +461,6 @@ void Get_SymbolInfo(CJAVal& req) {
         double min_lot = MarketInfo(name, MODE_MINLOT);           // Minimum permitted amount of a lot
         double lot_step = MarketInfo(name, MODE_LOTSTEP);         // Step for changing lots
         double max_lot = MarketInfo(name, MODE_MAXLOT);           // Maximum permitted amount of a lot
-        double margin_init = MarketInfo(name, MODE_MARGININIT);   // Initial margin requirements for 1 lot
-        double margin_maintenance =                               // Margin to maintain open orders calculated for 1 lot
-            MarketInfo(name ,MODE_MARGINMAINTENANCE);
-        double margin_hedged =                                    // Hedged margin calculated for 1 lot
-            MarketInfo(name, MODE_MARGINHEDGED);
-        double margin_required =                                  // Free margin required to open 1 lot for buying
-            MarketInfo(name, MODE_MARGINREQUIRED);
         double stop_level = MarketInfo(name, MODE_STOPLEVEL);     // Stop level in points
         double freeze_level = MarketInfo(name, MODE_FREEZELEVEL); // Order freeze level in points
 
@@ -481,10 +474,6 @@ void Get_SymbolInfo(CJAVal& req) {
         symbol["min_lot"] = min_lot;
         symbol["lot_step"] = lot_step;
         symbol["max_lot"] = max_lot;
-        symbol["margin_init"] = margin_init;
-        symbol["margin_maintenance"] = margin_maintenance;
-        symbol["margin_hedged"] = margin_hedged;
-        symbol["margin_required"] = margin_required;
         symbol["stop_level"] = stop_level;
         symbol["freeze_level"] = freeze_level;
         symbols[name].Set(symbol);
