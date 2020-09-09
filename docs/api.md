@@ -151,7 +151,7 @@ Get static information about the given market symbols.
   ```
 
 ### GET_SYMBOL_MARKET_INFO
-Get market information about the given symbol.
+Get market information about the given symbol (see [MarketInfo](https://docs.mql4.com/marketinformation/marketinfo)).
   
   #### Parameters
   - `symbol` - the market symbol
@@ -169,6 +169,28 @@ Get market information about the given symbol.
   ```json
   {
     "response": 1.13006
+  }
+  ```
+
+### GET_SYMBOL_INFO_INTEGER
+Get an integer property of a symbol (see [SymbolInfoInteger](https://docs.mql4.com/marketinformation/symbolinfointeger)).
+  
+  #### Parameters
+  - `symbol` - the market symbol
+  - `property_name` - the [ENUM_SYMBOL_INFO_INTEGER](https://docs.mql4.com/constants/environment_state/marketinfoconstants#enum_symbol_info_integer) to lookup
+  
+  #### Example
+  ```json
+  {
+    "action": "GET_SYMBOL_INFO_INTEGER",
+    "symbol": "EURUSD",
+    "property_name": "SYMBOL_SELECT"
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "response": 1
   }
   ```
 

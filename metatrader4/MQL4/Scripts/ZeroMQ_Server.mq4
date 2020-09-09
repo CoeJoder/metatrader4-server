@@ -33,6 +33,7 @@ enum RequestAction {
     GET_ACCOUNT_INFO_DOUBLE,
     GET_SYMBOL_INFO,
     GET_SYMBOL_MARKET_INFO,
+    GET_SYMBOL_INFO_INTEGER,
     GET_SYMBOL_TICK,
     GET_ORDER,
     GET_ORDERS,
@@ -204,6 +205,9 @@ void _processRequest(string dataStr) {
             break;
         case GET_SYMBOL_MARKET_INFO:
             Get_SymbolMarketInfo(req);
+            break;
+        case GET_SYMBOL_INFO_INTEGER:
+            Get_SymbolInfoInteger(req);
             break;
         case GET_SYMBOL_TICK:
             Get_SymbolTick(req);
@@ -480,6 +484,51 @@ void Get_SymbolInfo(CJAVal& req) {
     }
     sendResponse(symbols);
     return;
+}
+
+void Get_SymbolInfoInteger(CJAVal& req) {
+    if (!assertParamExists(req, "symbol")) {
+        return;
+    }
+    string symbol = req["symbol"].ToStr();
+
+    // use either property's name or id, giving priority to name
+    if (!IsNullOrMissing(req, "property_name")) {
+        string propertyName = req["property_name"].ToStr();
+        ENUM_SYMBOL_INFO_INTEGER action = (ENUM_SYMBOL_INFO_INTEGER)-1;
+        action = StringToEnum(propertyName, action);
+        if (action == -1) {
+            sendError(StringFormat("Unrecognized symbol integer property: %s", propertyName));
+            return;
+        }
+        else {
+            long propertyValue;
+            if (!SymbolInfoInteger(symbol, action, propertyValue)) {
+                sendError(GetLastError());
+                return;
+            }
+            else {
+                sendResponse(propertyValue);
+                return;
+            }
+        }
+    }
+    else if (!IsNullOrMissing(req, "property_id")) {
+        int propertyId = (int)req["property_id"].ToInt();
+        long propertyValue;
+        if (!SymbolInfoInteger(symbol, propertyId, propertyValue)) {
+            sendError(GetLastError());
+            return;
+        }
+        else {
+            sendResponse(propertyValue);
+            return;
+        }
+    }
+    else {
+        sendError("Must include either \"property_name\" or \"property_id\" param.");
+        return;
+    }
 }
 
 void Get_SymbolMarketInfo(CJAVal& req) {
