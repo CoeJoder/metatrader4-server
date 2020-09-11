@@ -194,6 +194,28 @@ Get an integer property of a symbol (see [SymbolInfoInteger](https://docs.mql4.c
   }
   ```
 
+### GET_SYMBOL_INFO_DOUBLE
+Get a double property of a symbol (see [SymbolInfoDouble](https://docs.mql4.com/marketinformation/symbolinfodouble)).
+  
+  #### Parameters
+  - `symbol` - the market symbol
+  - `property_name` - the [ENUM_SYMBOL_INFO_DOUBLE](https://docs.mql4.com/constants/environment_state/marketinfoconstants#enum_symbol_info_double) to lookup
+  
+  #### Example
+  ```json
+  {
+    "action": "GET_SYMBOL_INFO_DOUBLE",
+    "symbol": "EURUSD",
+    "property_name": "SYMBOL_BID"
+  }
+  ```
+  #### Response
+  ```json
+  {
+    "response": 1.13247
+  }
+  ```
+
 ### GET_SYMBOL_TICK
 Get the current prices of the given symbol (see [SymbolInfoTick](https://docs.mql4.com/marketinformation/symbolinfotick)).
   
