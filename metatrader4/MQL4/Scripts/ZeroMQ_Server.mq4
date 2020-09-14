@@ -35,6 +35,7 @@ enum RequestAction {
     GET_SYMBOL_MARKET_INFO,
     GET_SYMBOL_INFO_INTEGER,
     GET_SYMBOL_INFO_DOUBLE,
+    GET_SYMBOL_INFO_STRING,
     GET_SYMBOL_TICK,
     GET_ORDER,
     GET_ORDERS,
@@ -47,8 +48,7 @@ enum RequestAction {
     DO_ORDER_CLOSE,
     DO_ORDER_DELETE,
     DO_ORDER_MODIFY,
-    RUN_INDICATOR,
-    DEBUG
+    RUN_INDICATOR
 };
 
 // types of indicators
@@ -214,6 +214,9 @@ void _processRequest(string dataStr) {
         case GET_SYMBOL_INFO_DOUBLE:
             Get_SymbolInfoDouble(req);
             break;
+        case GET_SYMBOL_INFO_STRING:
+            Get_SymbolInfoString(req);
+            break;
         case GET_SYMBOL_TICK:
             Get_SymbolTick(req);
             break;
@@ -253,9 +256,6 @@ void _processRequest(string dataStr) {
         case RUN_INDICATOR:
             Run_Indicator(req);
             break;
-        case DEBUG:
-            Run_Debug(req);
-            break;
         default: {
             string errorStr = StringFormat("Unrecognized requested action (%s).", actionStr);
             Print(errorStr);
@@ -263,40 +263,6 @@ void _processRequest(string dataStr) {
             break;
         }
     }
-}
-
-//////DEBUGGING
-void Run_Debug(CJAVal& req) {
-   Print("Symbol=",Symbol());
-   Print("Low day price=",MarketInfo(Symbol(),MODE_LOW));
-   Print("High day price=",MarketInfo(Symbol(),MODE_HIGH));
-   Print("The last incoming tick time=",(MarketInfo(Symbol(),MODE_TIME)));
-   Print("Last incoming bid price=",MarketInfo(Symbol(),MODE_BID));
-   Print("Last incoming ask price=",MarketInfo(Symbol(),MODE_ASK));
-   Print("Point size in the quote currency=",MarketInfo(Symbol(),MODE_POINT));
-   Print("Digits after decimal point=",MarketInfo(Symbol(),MODE_DIGITS));
-   Print("Spread value in points=",MarketInfo(Symbol(),MODE_SPREAD));
-   Print("Stop level in points=",MarketInfo(Symbol(),MODE_STOPLEVEL));
-   Print("Lot size in the base currency=",MarketInfo(Symbol(),MODE_LOTSIZE));
-   Print("Tick value in the deposit currency=",MarketInfo(Symbol(),MODE_TICKVALUE));
-   Print("Tick size in points=",MarketInfo(Symbol(),MODE_TICKSIZE));
-   Print("Swap of the buy order=",MarketInfo(Symbol(),MODE_SWAPLONG));
-   Print("Swap of the sell order=",MarketInfo(Symbol(),MODE_SWAPSHORT));
-   Print("Market starting date (for futures)=",MarketInfo(Symbol(),MODE_STARTING));
-   Print("Market expiration date (for futures)=",MarketInfo(Symbol(),MODE_EXPIRATION));
-   Print("Trade is allowed for the symbol=",MarketInfo(Symbol(),MODE_TRADEALLOWED));
-   Print("Minimum permitted amount of a lot=",MarketInfo(Symbol(),MODE_MINLOT));
-   Print("Step for changing lots=",MarketInfo(Symbol(),MODE_LOTSTEP));
-   Print("Maximum permitted amount of a lot=",MarketInfo(Symbol(),MODE_MAXLOT));
-   Print("Swap calculation method=",MarketInfo(Symbol(),MODE_SWAPTYPE));
-   Print("Profit calculation mode=",MarketInfo(Symbol(),MODE_PROFITCALCMODE));
-   Print("Margin calculation mode=",MarketInfo(Symbol(),MODE_MARGINCALCMODE));
-   Print("Initial margin requirements for 1 lot=",MarketInfo(Symbol(),MODE_MARGININIT));
-   Print("Margin to maintain open orders calculated for 1 lot=",MarketInfo(Symbol(),MODE_MARGINMAINTENANCE));
-   Print("Hedged margin calculated for 1 lot=",MarketInfo(Symbol(),MODE_MARGINHEDGED));
-   Print("Free margin required to open 1 lot for buying=",MarketInfo(Symbol(),MODE_MARGINREQUIRED));
-   Print("Order freeze level in points=",MarketInfo(Symbol(),MODE_FREEZELEVEL));
-   sendResponse(1);
 }
 
 void _serializeAndSendResponse(CJAVal& resp) {
@@ -628,6 +594,51 @@ void Get_SymbolInfoDouble(CJAVal& req) {
         int propertyId = (int)req["property_id"].ToInt();
         double propertyValue;
         if (!SymbolInfoDouble(symbol, propertyId, propertyValue)) {
+            sendError(GetLastError());
+            return;
+        }
+        else {
+            sendResponse(propertyValue);
+            return;
+        }
+    }
+    else {
+        sendError("Must include either \"property_name\" or \"property_id\" param.");
+        return;
+    }
+}
+
+void Get_SymbolInfoString(CJAVal& req) {
+    if (!assertParamExists(req, "symbol")) {
+        return;
+    }
+    string symbol = req["symbol"].ToStr();
+
+    // use either property's name or id, giving priority to name
+    if (!IsNullOrMissing(req, "property_name")) {
+        string propertyName = req["property_name"].ToStr();
+        ENUM_SYMBOL_INFO_STRING action = (ENUM_SYMBOL_INFO_STRING)-1;
+        action = StringToEnum(propertyName, action);
+        if (action == -1) {
+            sendError(StringFormat("Unrecognized symbol string property: %s", propertyName));
+            return;
+        }
+        else {
+            string propertyValue;
+            if (!SymbolInfoString(symbol, action, propertyValue)) {
+                sendError(GetLastError());
+                return;
+            }
+            else {
+                sendResponse(propertyValue);
+                return;
+            }
+        }
+    }
+    else if (!IsNullOrMissing(req, "property_id")) {
+        int propertyId = (int)req["property_id"].ToInt();
+        string propertyValue;
+        if (!SymbolInfoString(symbol, propertyId, propertyValue)) {
             sendError(GetLastError());
             return;
         }
