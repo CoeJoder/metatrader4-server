@@ -465,7 +465,7 @@ void Get_SymbolInfo(CJAVal& req) {
             sendError(ERR_UNKNOWN_SYMBOL, name);
             return;
         }
-        double point_size = SymbolInfoDouble(name, SYMBOL_POINT);                           // Point size in the quote currency
+        double point = SymbolInfoDouble(name, SYMBOL_POINT);                                // Point size in the quote currency
         long digits = SymbolInfoInteger(name, SYMBOL_DIGITS);                               // Digits after decimal point
         double volume_min = SymbolInfoDouble(name, SYMBOL_VOLUME_MIN);                      // Minimal volume for a deal
         double volume_step = SymbolInfoDouble(name, SYMBOL_VOLUME_STEP);                    // Minimal volume change step for deal execution
@@ -478,7 +478,7 @@ void Get_SymbolInfo(CJAVal& req) {
 
         CJAVal symbol;
         symbol["name"] = name;
-        symbol["point_size"] = point_size;
+        symbol["point"] = point;
         symbol["digits"] = digits;
         symbol["volume_min"] = volume_min;
         symbol["volume_step"] = volume_step;
