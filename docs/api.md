@@ -122,29 +122,29 @@ Get static information about the given market symbols.
     "response": {
       "EURUSD": {
         "digits": 5,
-        "freeze_level": 0.0,
-        "lot_size": 100000.0,
-        "lot_step": 0.01,
-        "max_lot": 1000.0,
-        "min_lot": 0.01,
         "name": "EURUSD",
         "point_size": 1e-05,
-        "stop_level": 0.0,
-        "tick_size": 1e-05,
-        "tick_value": 1.0
+        "trade_contract_size": 100000.0,
+        "trade_freeze_level": 0,
+        "trade_stops_level": 0,
+        "trade_tick_size": 1e-05,
+        "trade_tick_value": 1.0,
+        "volume_max": 1000.0,
+        "volume_min": 0.01,
+        "volume_step": 0.01
       },
       "USDJPY": {
         "digits": 3,
-        "freeze_level": 0.0,
-        "lot_size": 100000.0,
-        "lot_step": 0.01,
-        "max_lot": 1000.0,
-        "min_lot": 0.01,
         "name": "USDJPY",
         "point_size": 0.001,
-        "stop_level": 0.0,
-        "tick_size": 0.001,
-        "tick_value": 0.94401072
+        "trade_contract_size": 100000.0,
+        "trade_freeze_level": 0,
+        "trade_stops_level": 0,
+        "trade_tick_size": 0.001,
+        "trade_tick_value": 0.9499924,
+        "volume_max": 1000.0,
+        "volume_min": 0.01,
+        "volume_step": 0.01
       }
     }
   }

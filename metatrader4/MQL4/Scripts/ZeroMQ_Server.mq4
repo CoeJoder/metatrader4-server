@@ -465,29 +465,29 @@ void Get_SymbolInfo(CJAVal& req) {
             sendError(ERR_UNKNOWN_SYMBOL, name);
             return;
         }
-        double point_size = MarketInfo(name, MODE_POINT);         // Point size in the quote currency
-        double digits = MarketInfo(name, MODE_DIGITS);            // Digits after decimal point
-        double lot_size = MarketInfo(name, MODE_LOTSIZE);         // Lot size in the base currency
-        double tick_value = MarketInfo(name, MODE_TICKVALUE);     // Tick value in the deposit currency
-        double tick_size = MarketInfo(name, MODE_TICKSIZE);       // Tick size in points
-        double min_lot = MarketInfo(name, MODE_MINLOT);           // Minimum permitted amount of a lot
-        double lot_step = MarketInfo(name, MODE_LOTSTEP);         // Step for changing lots
-        double max_lot = MarketInfo(name, MODE_MAXLOT);           // Maximum permitted amount of a lot
-        double stop_level = MarketInfo(name, MODE_STOPLEVEL);     // Stop level in points
-        double freeze_level = MarketInfo(name, MODE_FREEZELEVEL); // Order freeze level in points
+        double point_size = SymbolInfoDouble(name, SYMBOL_POINT);                           // Point size in the quote currency
+        long digits = SymbolInfoInteger(name, SYMBOL_DIGITS);                               // Digits after decimal point
+        double volume_min = SymbolInfoDouble(name, SYMBOL_VOLUME_MIN);                      // Minimal volume for a deal
+        double volume_step = SymbolInfoDouble(name, SYMBOL_VOLUME_STEP);                    // Minimal volume change step for deal execution
+        double volume_max = SymbolInfoDouble(name, SYMBOL_VOLUME_MAX);                      // Maximal volume for a deal
+        double trade_contract_size = SymbolInfoDouble(name, SYMBOL_TRADE_CONTRACT_SIZE);    // Trade contract size in the base currency
+        double trade_tick_value = SymbolInfoDouble(name, SYMBOL_TRADE_TICK_VALUE);          // Tick value in the deposit currency
+        double trade_tick_size = SymbolInfoDouble(name, SYMBOL_TRADE_TICK_SIZE);            // Tick size in points
+        long trade_stops_level = SymbolInfoInteger(name, SYMBOL_TRADE_STOPS_LEVEL);         // Stop level in points
+        long trade_freeze_level = SymbolInfoInteger(name, SYMBOL_TRADE_FREEZE_LEVEL);       // Order freeze level in points
 
         CJAVal symbol;
         symbol["name"] = name;
         symbol["point_size"] = point_size;
-        symbol["digits"] = (int) digits;
-        symbol["lot_size"] = lot_size;
-        symbol["tick_value"] = tick_value;
-        symbol["tick_size"] = tick_size;
-        symbol["min_lot"] = min_lot;
-        symbol["lot_step"] = lot_step;
-        symbol["max_lot"] = max_lot;
-        symbol["stop_level"] = stop_level;
-        symbol["freeze_level"] = freeze_level;
+        symbol["digits"] = digits;
+        symbol["volume_min"] = volume_min;
+        symbol["volume_step"] = volume_step;
+        symbol["volume_max"] = volume_max;
+        symbol["trade_contract_size"] = trade_contract_size;
+        symbol["trade_tick_value"] = trade_tick_value;
+        symbol["trade_tick_size"] = trade_tick_size;
+        symbol["trade_stops_level"] = trade_stops_level;
+        symbol["trade_freeze_level"] = trade_freeze_level;
         symbols[name].Set(symbol);
     }
     sendResponse(symbols);
