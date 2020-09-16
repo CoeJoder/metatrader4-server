@@ -123,7 +123,7 @@ Get static information about the given market symbols.
       "EURUSD": {
         "digits": 5,
         "name": "EURUSD",
-        "point_size": 1e-05,
+        "point": 1e-05,
         "trade_contract_size": 100000.0,
         "trade_freeze_level": 0,
         "trade_stops_level": 0,
@@ -136,7 +136,7 @@ Get static information about the given market symbols.
       "USDJPY": {
         "digits": 3,
         "name": "USDJPY",
-        "point_size": 0.001,
+        "point": 0.001,
         "trade_contract_size": 100000.0,
         "trade_freeze_level": 0,
         "trade_stops_level": 0,
