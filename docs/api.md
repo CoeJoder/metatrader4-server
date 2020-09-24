@@ -8,7 +8,33 @@ If the action completed with caveats, the response will contain a `warning` prop
 If the action failed, the response will contain one or more of the following properties: `error_code`, `error_code_description`, `error_message`.
 See [MQL4 error codes](https://docs.mql4.com/constants/errorswarnings/errorcodes).
 
-# User Account
+# Actions
+#### Account
+- [GET_ACCOUNT_INFO](#GET_ACCOUNT_INFO)
+- [GET_ACCOUNT_INFO_INTEGER](#GET_ACCOUNT_INFO_INTEGER)
+- [GET_ACCOUNT_INFO_DOUBLE](#GET_ACCOUNT_INFO_DOUBLE)
+#### Market
+- [GET_SYMBOLS](#GET_SYMBOLS)
+- [GET_SYMBOL_INFO](#GET_SYMBOL_INFO)
+- [GET_SYMBOL_MARKET_INFO](#GET_SYMBOL_MARKET_INFO)
+- [GET_SYMBOL_INFO_INTEGER](#GET_SYMBOL_INFO_INTEGER)
+- [GET_SYMBOL_INFO_DOUBLE](#GET_SYMBOL_INFO_DOUBLE)
+- [GET_SYMBOL_INFO_STRING](#GET_SYMBOL_INFO_STRING)
+- [GET_SYMBOL_TICK](#GET_SYMBOL_TICK)
+- [GET_OHLCV](#GET_OHLCV)
+- [GET_SIGNALS](#GET_SIGNALS)
+- [GET_SIGNAL_INFO](#GET_SIGNAL_INFO)
+- [RUN_INDICATOR](#RUN_INDICATOR)
+#### Trading
+- [GET_ORDER](#GET_ORDER)
+- [GET_ORDERS](#GET_ORDERS)
+- [GET_HISTORICAL_ORDERS](#GET_HISTORICAL_ORDERS)
+- [DO_ORDER_SEND](#DO_ORDER_SEND)
+- [DO_ORDER_CLOSE](#DO_ORDER_CLOSE)
+- [DO_ORDER_DELETE](#DO_ORDER_DELETE)
+- [DO_ORDER_MODIFY](#DO_ORDER_MODIFY)
+
+---
 
 ### GET_ACCOUNT_INFO
 Get static information about the account.
@@ -71,8 +97,6 @@ Get a double property of the account (see [AccountInfoDouble](https://docs.mql4.
     "response": 5000.0
   }
   ```
-
-# Market
 
 ### GET_SYMBOLS
 Get a list of all market symbols available for trading.
@@ -408,8 +432,6 @@ a timeout must be specified.
     "response": 2.251e-05
   }
   ```
-
-# Trading
 
 ### GET_ORDER
 Lookup an open, pending, or closed order using its ticket number.
