@@ -734,7 +734,6 @@ void _getSelectedOrder(CJAVal& order) {
     order["commission"] = OrderCommission();
     order["swap"] = OrderSwap();
     order["comment"] = OrderComment();
-    order["ticket"] = OrderTicket();
 }
 
 void Get_Symbols() {
