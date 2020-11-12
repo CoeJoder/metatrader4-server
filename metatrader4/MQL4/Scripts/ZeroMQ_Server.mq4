@@ -461,8 +461,8 @@ void Get_SymbolInfo(CJAVal& req) {
     CJAVal symbols;
     for (int i = 0; i < names.Size(); i++) {
         string name = names[i].ToStr();
-        if (!SymbolExists(name)) {
-            sendError(ERR_UNKNOWN_SYMBOL, name);
+        if (!SymbolSelect(name, true)) {
+            sendError(GetLastError(), name);
             return;
         }
         double point = SymbolInfoDouble(name, SYMBOL_POINT);                                // Point size in the quote currency
@@ -501,8 +501,8 @@ void Get_SymbolMarketInfo(CJAVal& req) {
     string symbol = req["symbol"].ToStr();
     string strProperty = req["property"].ToStr();
 
-    if (!SymbolExists(symbol)) {
-        sendError(ERR_UNKNOWN_SYMBOL, symbol);
+    if (!SymbolSelect(symbol, true)) {
+        sendError(GetLastError(), symbol);
         return;
     }
 
@@ -659,8 +659,8 @@ void Get_SymbolTick(CJAVal& req) {
     }
     string symbol = req["symbol"].ToStr();
 
-    if (!SymbolExists(symbol)) {
-        sendError(ERR_UNKNOWN_SYMBOL, symbol);
+    if (!SymbolSelect(symbol, true)) {
+        sendError(GetLastError(), symbol);
         return;
     }
 
@@ -757,8 +757,8 @@ void Get_OHLCV(CJAVal& req) {
     long timeout = req["timeout"].ToInt();
     datetime now = TimeCurrent();
 
-    if (!SymbolExists(symbol)) {
-        sendError(ERR_UNKNOWN_SYMBOL, symbol);
+    if (!SymbolSelect(symbol, true)) {
+        sendError(GetLastError(), symbol);
         return;
     }
 
@@ -885,8 +885,8 @@ void Do_OrderSend(CJAVal& req) {
     double lots = req["lots"].ToDbl();
     string comment = req["comment"].ToStr();
 
-    if (!SymbolExists(symbol)) {
-        sendError(ERR_UNKNOWN_SYMBOL, symbol);
+    if (!SymbolSelect(symbol, true)) {
+        sendError(GetLastError(), symbol);
         return;
     }
 
@@ -1359,11 +1359,6 @@ double _runIndicator(Indicator indicator, CJAVal& argv) {
         case iWPR:          return iWPR(argv[0].ToStr(), (int)argv[1].ToInt(), (int)argv[2].ToInt(), (int)argv[3].ToInt());
         default:            return NULL;
     }
-}
-
-bool SymbolExists(string symbol) {
-    MarketInfo(symbol, MODE_BID);
-    return (GetLastError() != ERR_UNKNOWN_SYMBOL);
 }
 
 bool IsValidTradeOperation(int orderType) {
