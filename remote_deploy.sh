@@ -19,10 +19,10 @@ SCRIPT_FILENAME='ZeroMQ_Server.mq4'
 SSH_ENDPOINT='joe@win10'
 
 # the remote MT4 profile location
-MT4_PROFILE='C:\Users\Joe\AppData\Roaming\MetaQuotes\Terminal\977DAA59FB4CDBA569AB3A0248922121'
+MT4_PROFILE='C:\Users\Joe\AppData\Roaming\MetaQuotes\Terminal\B4465D2178C9DCD8E8CD3CCFEA8AA766'
 
 # the remote MT4 install location
-MT4_HOME='C:\Program Files (x86)\JAFX MetaTrader 4'
+MT4_HOME='C:\Program Files (x86)\LMFX MetaTrader 4 Terminal'
 
 ## ----------------------------------------------------------------------------
 

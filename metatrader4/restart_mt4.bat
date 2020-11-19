@@ -13,13 +13,13 @@ rem configurable variables:
 rem ---------------------------------------------------------------------------
 
 rem the MT4 profile
-set MT4_PROFILE=C:\Users\Joe\AppData\Roaming\MetaQuotes\Terminal\977DAA59FB4CDBA569AB3A0248922121
+set MT4_PROFILE=C:\Users\Joe\AppData\Roaming\MetaQuotes\Terminal\B4465D2178C9DCD8E8CD3CCFEA8AA766
 
 rem the MT4 startup configuration (relative to MT4_PROFILE)
 set START_INI=config\zeromq_server_startup.ini
 
 rem the MT4 installation
-set MT4_HOME=C:\Program Files (x86)\JAFX MetaTrader 4
+set MT4_HOME=C:\Program Files (x86)\LMFX MetaTrader 4 Terminal
 
 rem ---------------------------------------------------------------------------
 
