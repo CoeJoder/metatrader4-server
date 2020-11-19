@@ -1239,7 +1239,7 @@ void Do_OrderDelete(CJAVal& req) {
         return;
     }
     int ticket = (int)req["ticket"].ToInt();
-    bool closeIfOpened = GetDefault(req, "closeIfOpened", false);
+    bool closeIfOpened = GetDefault(req, "close_if_opened", false);
 
     if (!OrderSelect(ticket, SELECT_BY_TICKET, MODE_TRADES)) {
         sendError(StringFormat("Order # %d not found.", ticket));
