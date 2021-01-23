@@ -5,14 +5,19 @@ See [API](docs/api.md) for supported operations.
 ![Diagram 1](diagram_1.png)
 
 ## Installation
-Copy the contents of the [metatrader4](metatrader4) folder into your MetaTrader 4 profile directory, merging the 
-folder contents.  Compile [ZeroMQ_Server.mq4](metatrader4/MQL4/Scripts/ZeroMQ_Server.mq4) using MetaEditor.
-Start MetaTrader 4 and add the `ZeroMQ Server` script to any chart (chart symbol does not matter).  The server begins 
+1. Copy [metatrader4](metatrader4) into your MetaTrader 4 profile directory, merging the 
+folder contents.
+1. Copy [mql-zmq/Include/](https://github.com/dingmaotu/mql-zmq/tree/f9bf8d94a34194a4fe79ae625779226900fe8657/Include) into the `MQL4/Include` subdirectory of your MetaTrader 4 profile directory, merging the 
+folder contents.
+1. Copy [mql-zmq/Library/MT4/](https://github.com/dingmaotu/mql-zmq/tree/f9bf8d94a34194a4fe79ae625779226900fe8657/Library/MT4) into the `MQL4/Libraries` subdirectory of your MetaTrader 4 profile directory, merging the 
+folder contents.
+1. Launch MetaEditor, open `MQL4/Scripts/ZeroMQ_Server.mq4` in your MetaTrader 4 profile directory and compile it.
+1. Start MetaTrader 4 and add the `ZeroMQ Server` script to any chart (chart symbol does not matter).  The server begins 
 listening for client requests and responds synchronously.
 
 ## Configuration
 The default listening port is `TCP/28282` but is configurable in the script parameters popup in the MetaTrader terminal,
-along with other parameters such as socket timeouts.  Configure port forwarding as necessary.
+along with other parameters such as socket timeouts.  If Windows Defender Firewall is running, you must forward the port.
 
 ## Usage
 Typical client usage:
